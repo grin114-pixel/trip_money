@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import './App.css';
 import { supabase } from './supabase'; // 아까 만든 설정 파일 불러오기
 
