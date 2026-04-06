@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { TripModal } from '../components/TripModal'
 import { IconPencil, IconPlus, IconTrash } from '../components/Icons'
 import { formatTripRange, getYearFromDate } from '../utils'
@@ -21,7 +20,6 @@ function sortTripsDesc(trips: Trip[]): Trip[] {
 
 export function TripList() {
   const { trips, refresh } = useTrips()
-  const navigate = useNavigate()
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<any>(null)
 
@@ -71,32 +69,32 @@ export function TripList() {
                 </div>
                 <ul className="mt-3 grid grid-cols-2 gap-3 sm:gap-4">
                   {list.map((trip) => (
-                    <li key={String(trip.id)} className="relative group">
-                      {/* 카드 본체: 클릭 시 이동 */}
+                    <li key={String(trip.id)} className="relative">
+                      {/* [강력 해결책] 단순 div 클릭 + window.location 조합 */}
                       <div 
-                        onClick={() => navigate(`/trip/${trip.id}`)}
-                        className="flex h-24 flex-col justify-between rounded-xl border border-slate-100 bg-white p-4 shadow-sm active:bg-slate-50 cursor-pointer"
+                        onClick={() => { window.location.href = `/trip/${trip.id}`; }}
+                        className="flex h-24 flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm active:bg-slate-100 cursor-pointer"
                       >
-                        <p className="truncate text-sm font-bold text-brand-700 pr-12">{trip.name}</p>
+                        <p className="truncate text-sm font-bold text-slate-800 pr-10">{trip.name}</p>
                         <div className="flex justify-between items-baseline">
-                          <p className="text-[10px] text-slate-500">{formatTripRange(trip.startDate, trip.endDate)}</p>
-                          <p className="text-xs font-semibold text-slate-600">{safeSum(trip).toLocaleString()}원</p>
+                          <p className="text-[10px] text-slate-400">{formatTripRange(trip.startDate, trip.endDate)}</p>
+                          <p className="text-xs font-semibold text-brand-600">{safeSum(trip).toLocaleString()}원</p>
                         </div>
                       </div>
                       
-                      {/* 수정/삭제 버튼: 절대 위치로 우상단 고정 */}
-                      <div className="absolute right-2 top-2 z-30 flex gap-1">
+                      {/* 버튼들을 더 명확하게 분리 */}
+                      <div className="absolute right-1 top-1 z-50 flex gap-0.5">
                         <button 
                           onClick={(e) => { e.stopPropagation(); setEditingId(trip.id); setModalOpen(true); }} 
-                          className="p-1.5 text-slate-300 hover:text-brand-500"
+                          className="p-2 text-slate-300 active:text-brand-500"
                         >
-                          <IconPencil className="h-3.5 w-3.5" />
+                          <IconPencil className="h-4 w-4" />
                         </button>
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleDelete(trip.id, trip.name); }} 
-                          className="p-1.5 text-slate-300 hover:text-red-400"
+                          className="p-2 text-slate-300 active:text-red-400"
                         >
-                          <IconTrash className="h-3.5 w-3.5" />
+                          <IconTrash className="h-4 w-4" />
                         </button>
                       </div>
                     </li>
@@ -110,7 +108,7 @@ export function TripList() {
 
       <button 
         onClick={() => { setEditingId(null); setModalOpen(true); }} 
-        className="fixed bottom-10 right-5 z-40 h-14 w-14 rounded-full bg-brand-600 text-white shadow-lg flex items-center justify-center active:scale-95"
+        className="fixed bottom-10 right-5 z-50 h-14 w-14 rounded-full bg-brand-600 text-white shadow-lg flex items-center justify-center active:scale-90"
       >
         <IconPlus className="h-7 w-7" />
       </button>
