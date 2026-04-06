@@ -3,50 +3,55 @@ import { supabase } from './supabase'
 
 function App() {
   const [items, setItems] = useState<any[]>([])
-  const [text, setText] = useState('')
+  const [content, setContent] = useState('')
   const [amount, setAmount] = useState('')
 
-  // 1. 데이터 불러오기
   useEffect(() => {
     fetchData()
   }, [])
 
   async function fetchData() {
     const { data, error } = await supabase
-      .from('trip_money')
+      .from('trips') // 수파베이스 표 이름이 'trips'가 맞는지 꼭 확인!
       .select('*')
       .order('id', { ascending: false })
     
-    if (error) console.error('Error fetching:', error)
-    else setItems(data || [])
+    if (error) {
+      console.error('불러오기 에러:', error)
+    } else {
+      setItems(data || [])
+    }
   }
 
-  // 2. 데이터 추가하기
   async function addItem() {
-    if (!text || !amount) return alert('내용과 금액을 입력해주세요!')
+    if (!content || !amount) return alert('내용과 금액을 입력해주세요!')
 
+    // insert 안에 들어가는 이름들이 수파베이스 표의 칸 이름과 똑같아야 해요!
     const { error } = await supabase
-      .from('trip_money')
-      .insert([{ text, amount: Number(amount) }])
+      .from('trips')
+      .insert([{ 
+        content: content, 
+        amount: Number(amount) 
+      }])
 
     if (error) {
-      console.error('Error inserting:', error)
+      alert('저장 실패: ' + error.message)
+      console.error('저장 에러:', error)
     } else {
-      setText('')
+      setContent('')
       setAmount('')
-      fetchData()
+      fetchData() // 저장 후 목록 새로고침
     }
   }
 
   return (
     <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto', fontFamily: 'sans-serif' }}>
       <h1>✈️ 여행 가계부</h1>
-      
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
         <input
           placeholder="내용 (예: 점심 식사)"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
           style={{ padding: '10px' }}
         />
         <input
@@ -56,21 +61,16 @@ function App() {
           onChange={(e) => setAmount(e.target.value)}
           style={{ padding: '10px' }}
         />
-        <button 
-          onClick={addItem}
-          style={{ padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}
-        >
+        <button onClick={addItem} style={{ padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none' }}>
           추가하기
         </button>
       </div>
-
       <hr />
-
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {items.map((item: any) => (
           <li key={item.id} style={{ padding: '10px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between' }}>
-            <span>{item.text}</span>
-            <span style={{ fontWeight: 'bold' }}>{item.amount.toLocaleString()}원</span>
+            <span>{item.content}</span>
+            <span>{item.amount?.toLocaleString()}원</span>
           </li>
         ))}
       </ul>
