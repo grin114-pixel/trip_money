@@ -3,15 +3,24 @@ import { useState } from 'react'
 interface Props {
   mode: 'create' | 'edit'
   initialName?: string
-  initialDate?: string
+  initialStartDate?: string
+  initialEndDate?: string
   onClose: () => void
   onSave: (payload: { name: string; startDate: string; endDate: string }) => void
 }
 
-export function TripModal({ mode, initialName = '', initialDate = '', onClose, onSave }: Props) {
+export function TripModal({
+  mode,
+  initialName = '',
+  initialStartDate = '',
+  initialEndDate = '',
+  onClose,
+  onSave,
+}: Props) {
   const [name, setName] = useState(initialName)
-  const [startDate, setStartDate] = useState(initialDate || new Date().toISOString().split('T')[0])
-  const [endDate, setEndDate] = useState(initialDate || new Date().toISOString().split('T')[0])
+  const today = new Date().toISOString().split('T')[0]
+  const [startDate, setStartDate] = useState(initialStartDate || today)
+  const [endDate, setEndDate] = useState(initialEndDate || today)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
