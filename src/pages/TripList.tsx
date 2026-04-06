@@ -2,11 +2,11 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { TripModal } from '../components/TripModal'
 import { IconPencil, IconPlus, IconTrash } from '../components/Icons'
-import { createId } from '../utils'
 import { formatTripRange, getYearFromDate } from '../utils'
 import type { Trip } from '../types'
 import { sumExpenses } from '../storage'
 import { useTrips } from '../trips/useTrips'
+import { supabase } from '../supabase' // 이 줄이 꼭 있어야 합니다!
 
 function sortTripsDesc(trips: Trip[]): Trip[] {
   return [...trips].sort((a, b) => {
@@ -16,7 +16,7 @@ function sortTripsDesc(trips: Trip[]): Trip[] {
 }
 
 export function TripList() {
-  const { trips, setTrips } = useTrips()
+  const { trips, refresh } = useTrips()
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
@@ -44,105 +44,51 @@ export function TripList() {
     setModalOpen(true)
   }
 
-  const handleSaveTrip = async (payload: {
-    name: string
-    startDate: string
-    endDate: string
-  }) => {
+  const handleSaveTrip = async (payload: { name: string, startDate: string, endDate: string }) => {
     if (editingId) {
-      // 수정하기
-      await supabase
-        .from('trips')
-        .update({ name: payload.name, startDate: payload.startDate, endDate: payload.endDate })
-        .eq('id', editingId)
+      await supabase.from('trips').update({ name: payload.name, startDate: payload.startDate, endDate: payload.endDate }).eq('id', editingId)
     } else {
-      // 새로 만들기
-      await supabase
-        .from('trips')
-        .insert([{ 
-          name: payload.name, 
-          startDate: payload.startDate, 
-          endDate: payload.endDate,
-          expenses: [] // 초기 경비는 빈 배열
-        }])
+      await supabase.from('trips').insert([{ name: payload.name, startDate: payload.startDate, endDate: payload.endDate, expenses: [] }])
     }
-    // 저장 후 다시 불러오기
-    window.location.reload() 
+    setModalOpen(false)
+    refresh()
   }
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`「${name}」 여행을 삭제할까요?`)) return
     await supabase.from('trips').delete().eq('id', id)
-    window.location.reload()
+    refresh()
   }
 
   return (
     <div className="relative min-h-[100dvh] bg-white pb-28">
-      <main className="px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-4">
+      <main className="px-3 pt-4 sm:px-4">
         {byYear.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">
-            등록된 여행이 없습니다.
-            <br />
-            우측 하단 + 버튼으로 여행을 추가해 보세요.
-          </p>
+          <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">등록된 여행이 없습니다.</p>
         ) : (
           <div className="space-y-8">
             {byYear.map(([year, list]) => (
               <section key={year}>
                 <div className="flex items-center gap-3">
-                  <h2 className="text-2xl font-bold tabular-nums tracking-tight text-brand-600 sm:text-3xl">
-                    {year}
-                  </h2>
+                  <h2 className="text-2xl font-bold text-brand-600">{year}</h2>
                   <div className="h-[2px] flex-1 rounded-full bg-brand-500" />
                 </div>
                 <ul className="mt-3 grid grid-cols-2 gap-3 sm:gap-4">
                   {list.map((trip) => (
                     <li key={trip.id} className="min-w-0">
-                      <div className="relative overflow-hidden rounded-[12px] border border-slate-100/90 bg-white shadow-sm">
-                        <Link
-                          to={`/trip/${trip.id}`}
-                          className="absolute inset-0 z-0 active:bg-slate-50/80"
-                          aria-label={`${trip.name} 경비 내역`}
-                        />
-                        <div className="relative z-10 flex flex-col gap-0 p-4 pointer-events-none">
-                          <div className="flex items-center gap-2">
-                            <p className="min-w-0 flex-1 truncate text-sm font-bold leading-tight text-lime-600">
-                              {trip.name}
-                            </p>
-                            <div className="flex shrink-0 items-center gap-0.5 pointer-events-auto">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  e.stopPropagation()
-                                  openEdit(trip.id)
-                                }}
-                                className="rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-brand-600"
-                                aria-label="여행 수정"
-                              >
-                                <IconPencil className="h-3.5 w-3.5" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  e.stopPropagation()
-                                  handleDelete(trip.id, trip.name)
-                                }}
-                                className="rounded-md p-1 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
-                                aria-label="여행 삭제"
-                              >
-                                <IconTrash className="h-3.5 w-3.5" />
-                              </button>
+                      <div className="relative overflow-hidden rounded-[12px] border border-slate-100 bg-white shadow-sm p-4">
+                        <Link to={`/trip/${trip.id}`} className="absolute inset-0 z-0 active:bg-slate-50" />
+                        <div className="relative z-10 flex flex-col">
+                          <div className="flex items-center justify-between">
+                            <p className="truncate text-sm font-bold text-lime-600">{trip.name}</p>
+                            <div className="flex gap-1 pointer-events-auto">
+                              <button onClick={(e) => { e.preventDefault(); openEdit(trip.id); }} className="p-1 text-slate-400"><IconPencil className="h-3.5 w-3.5" /></button>
+                              <button onClick={(e) => { e.preventDefault(); handleDelete(trip.id, trip.name); }} className="p-1 text-slate-400"><IconTrash className="h-3.5 w-3.5" /></button>
                             </div>
                           </div>
-                          <div className="mt-2 flex items-baseline justify-between gap-2">
-                            <p className="min-w-0 flex-1 truncate text-[10px] leading-snug text-slate-500">
-                              {formatTripRange(trip.startDate, trip.endDate)}
-                            </p>
-                            <p className="shrink-0 text-xs font-semibold tabular-nums leading-none text-slate-500">
-                              {sumExpenses(trip).toLocaleString('ko-KR')}원
-                            </p>
+                          <div className="mt-2 flex justify-between items-baseline">
+                            <p className="text-[10px] text-slate-500">{formatTripRange(trip.startDate, trip.endDate)}</p>
+                            <p className="text-xs font-semibold text-slate-500">{sumExpenses(trip).toLocaleString()}원</p>
                           </div>
                         </div>
                       </div>
@@ -154,29 +100,18 @@ export function TripList() {
           </div>
         )}
       </main>
-
-      <button
-        type="button"
-        onClick={openCreate}
-        className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-5 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg shadow-brand-600/30 active:scale-95"
-        aria-label="여행 추가"
-      >
+      <button onClick={openCreate} className="fixed bottom-10 right-5 z-20 h-14 w-14 rounded-full bg-brand-600 text-white shadow-lg flex items-center justify-center">
         <IconPlus className="h-7 w-7" />
       </button>
-
-      {modalOpen ? (
+      {modalOpen && (
         <TripModal
-          key={editingId ?? 'new-trip'}
           mode={editingId ? 'edit' : 'create'}
           initialName={editingTrip?.name ?? ''}
           initialDate={editingTrip?.startDate ?? ''}
-          onClose={() => {
-            setModalOpen(false)
-            setEditingId(null)
-          }}
+          onClose={() => { setModalOpen(false); setEditingId(null); }}
           onSave={handleSaveTrip}
         />
-      ) : null}
+      )}
     </div>
   )
 }
