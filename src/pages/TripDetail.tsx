@@ -139,10 +139,10 @@ export function TripDetail() {
         <div className="ml-auto text-xs text-slate-400">{saving ? '저장 중…' : '자동 저장'}</div>
       </header>
 
-      <main className="px-0 py-0">
+      <main className="px-2 py-0">
         <div className="excel-sheet w-full overflow-hidden">
           <div className="w-full border-b border-slate-200" style={{ borderTop: '1px solid rgb(226 232 240)' }}>
-            <div className="grid grid-cols-[56px_1fr_88px_44px_36px] bg-[#f6edd6] text-xs font-semibold text-slate-700 sm:grid-cols-[68px_1fr_110px_56px_44px]">
+            <div className="grid grid-cols-[56px_1fr_76px_44px_36px] bg-[#e0f2fe] text-xs font-semibold text-slate-700 sm:grid-cols-[68px_1fr_96px_56px_44px]">
               <div className="border-r border-slate-200 px-2 py-1 text-center">날짜</div>
               <div className="border-r border-slate-200 px-2 py-1 text-center">내역</div>
               <div className="border-r border-slate-200 px-2 py-1 text-center">금액</div>
@@ -158,7 +158,7 @@ export function TripDetail() {
                 <div
                   key={r.id}
                   data-row
-                  className="grid grid-cols-[56px_1fr_88px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[68px_1fr_110px_56px_44px]"
+                  className="grid grid-cols-[56px_1fr_76px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[68px_1fr_96px_56px_44px]"
                 >
                   <div className="border-r border-slate-200">
                     <input
@@ -218,10 +218,10 @@ export function TripDetail() {
             </div>
           )}
 
-          <div className="grid grid-cols-[56px_1fr_88px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[68px_1fr_110px_56px_44px]">
+          <div className="grid grid-cols-[56px_1fr_76px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[68px_1fr_96px_56px_44px]">
             <div className="border-r border-slate-200" />
             <div className="border-r border-slate-200" />
-            <div className="border-r border-slate-200 bg-yellow-300 px-2 py-2 text-right text-sm font-bold text-slate-900">
+            <div className="border-r border-slate-200 bg-yellow-200 px-2 py-2 text-right text-sm font-bold text-slate-900">
               {total.toLocaleString()}
             </div>
             <div className="border-r border-slate-200" />
@@ -233,17 +233,17 @@ export function TripDetail() {
               <button
                 type="button"
                 onClick={() => addRows(1)}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow active:scale-[0.99]"
+                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-sky-400 px-3 py-1.5 text-xs font-semibold text-white shadow active:scale-[0.99]"
               >
-                <IconPlus className="h-5 w-5" />
+                <IconPlus className="h-4 w-4" />
                 1줄 추가
               </button>
               <button
                 type="button"
                 onClick={() => addRows(5)}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow active:scale-[0.99]"
+                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-sky-400 px-3 py-1.5 text-xs font-semibold text-white shadow active:scale-[0.99]"
               >
-                <IconPlus className="h-5 w-5" />
+                <IconPlus className="h-4 w-4" />
                 5줄 추가
               </button>
             </div>

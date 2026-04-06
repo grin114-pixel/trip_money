@@ -90,7 +90,7 @@ export function TripList() {
       <h2 style={{ marginBottom: '20px' }}>✈️ 나의 여행 목록</h2>
       {grouped.map((group) => (
         <React.Fragment key={group.year}>
-        <div style={{ marginBottom: '18px' }}>
+        <div style={{ marginBottom: '26px' }}>
           <div
             style={{
               display: 'flex',
@@ -101,7 +101,7 @@ export function TripList() {
               fontWeight: 700,
             }}
           >
-            <span style={{ fontSize: '18px' }}>{group.year}</span>
+            <span style={{ fontSize: '18px', color: '#2563eb' }}>{group.year}</span>
             <div style={{ height: '1px', background: '#e5e7eb', flex: 1 }} />
           </div>
 
@@ -141,7 +141,7 @@ export function TripList() {
                         style={{
                           fontWeight: 900,
                           fontSize: '15px',
-                          color: '#2563eb',
+                          color: '#111827',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           display: '-webkit-box',
