@@ -1,94 +1,68 @@
 import { useState } from 'react'
 
-export type TripModalMode = 'create' | 'edit'
-
-type Props = {
-  mode: TripModalMode
+interface Props {
+  mode: 'create' | 'edit'
   initialName?: string
   initialDate?: string
   onClose: () => void
   onSave: (payload: { name: string; startDate: string; endDate: string }) => void
 }
 
-export function TripModal({
-  mode,
-  initialName = '',
-  initialDate = '',
-  onClose,
-  onSave,
-}: Props) {
+export function TripModal({ mode, initialName = '', initialDate = '', onClose, onSave }: Props) {
   const [name, setName] = useState(initialName)
-  const [tripDate, setTripDate] = useState(initialDate)
-
-  const title = mode === 'create' ? '여행 추가' : '여행 수정'
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const n = name.trim()
-    if (!n) {
-      alert('여행지 이름을 입력해 주세요.')
-      return
-    }
-    if (!tripDate) {
-      alert('여행 날짜를 선택해 주세요.')
-      return
-    }
-    onSave({ name: n, startDate: tripDate, endDate: tripDate })
-    onClose()
-  }
+  const [startDate, setStartDate] = useState(initialDate || new Date().toISOString().split('T')[0])
+  const [endDate, setEndDate] = useState(initialDate || new Date().toISOString().split('T')[0])
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="trip-modal-title"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-md rounded-t-2xl bg-white p-5 shadow-xl sm:rounded-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 id="trip-modal-title" className="text-lg font-semibold text-slate-900">
-          {title}
-        </h2>
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700">여행지</span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+        <h3 className="mb-4 text-lg font-bold text-slate-800">
+          {mode === 'create' ? '새 여행 등록' : '여행 수정'}
+        </h3>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-slate-500">여행지 이름</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none ring-brand-600 focus:ring-2"
-              placeholder="예: 제주도"
-              autoComplete="off"
+              className="mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              placeholder="예: 제주도 여행"
             />
-          </label>
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700">여행 날짜</span>
-            <input
-              type="date"
-              value={tripDate}
-              onChange={(e) => setTripDate(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none ring-brand-600 focus:ring-2"
-            />
-          </label>
-          <div className="flex gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-medium text-slate-700 active:bg-slate-50"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              className="flex-1 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white active:bg-brand-700"
-            >
-              저장
-            </button>
           </div>
-        </form>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-slate-500">시작일</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500">종료일</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex gap-2">
+          <button onClick={onClose} className="flex-1 rounded-lg bg-slate-100 py-2 text-sm font-medium text-slate-600">취소</button>
+          <button 
+            onClick={() => onSave({ name, startDate, endDate })}
+            className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white shadow-md active:scale-95"
+          >
+            저장하기
+          </button>
+        </div>
       </div>
     </div>
   )
