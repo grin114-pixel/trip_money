@@ -7,7 +7,7 @@ export interface Expense {
 }
 
 export interface Trip {
-  // id가 숫자(number)일 수도, 문자(string)일 수도 있어서 둘 다 허용합니다.
+  // id가 숫자(int8)여도, 문자(text)여도 모두 받아낼 수 있게 'any'로 설정합니다.
   id: any; 
   name: string;
   startDate: string;
