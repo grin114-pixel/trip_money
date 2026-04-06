@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TripModal } from '../components/TripModal'
 import { IconPencil, IconTrash } from '../components/Icons'
@@ -6,11 +6,58 @@ import { useTrips } from '../trips/useTrips'
 import { supabase } from '../supabase'
 import type { Trip } from '../types'
 
+function sumTripAmount(trip: Trip) {
+  const ex = trip.expenses || []
+  return ex.reduce((acc, e) => acc + (Number(e.amount) || 0), 0)
+}
+
+function parseDateKey(text?: string): number {
+  if (!text) return Number.NEGATIVE_INFINITY
+
+  // 2026-04-06 / 2026.04.06 / 2026/4/6
+  const ymd = text.match(/(19|20)\d{2}\s*[./-]\s*(\d{1,2})\s*[./-]\s*(\d{1,2})/)
+  if (ymd) {
+    const y = Number(ymd[0].match(/(19|20)\d{2}/)![0])
+    const parts = ymd[0].match(/(19|20)\d{2}\s*[./-]\s*(\d{1,2})\s*[./-]\s*(\d{1,2})/)!
+    const m = Number(parts[2])
+    const d = Number(parts[3])
+    const t = new Date(y, m - 1, d).getTime()
+    return Number.isFinite(t) ? t : Number.NEGATIVE_INFINITY
+  }
+
+  // 2/22 같은 형태는 연도 없이 들어오므로 정렬 우선순위에서 뒤로 보냄
+  return Number.NEGATIVE_INFINITY
+}
+
+function parseYear(text?: string): string {
+  if (!text) return '기타'
+  const m = text.match(/(19|20)\d{2}/)
+  return m?.[0] ?? '기타'
+}
+
 export function TripList() {
   const { trips, refresh } = useTrips()
   const [modalOpen, setModalOpen] = useState(false)
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null)
   const navigate = useNavigate()
+
+  const grouped = useMemo(() => {
+    const sorted = [...(trips || [])].sort((a, b) => parseDateKey(b.startDate) - parseDateKey(a.startDate))
+    const map = new Map<string, Trip[]>()
+    for (const t of sorted) {
+      const y = parseYear(t.startDate)
+      const arr = map.get(y)
+      if (arr) arr.push(t)
+      else map.set(y, [t])
+    }
+    // 년도 내림차순, '기타'는 마지막
+    const keys = Array.from(map.keys()).sort((a, b) => {
+      if (a === '기타') return 1
+      if (b === '기타') return -1
+      return Number(b) - Number(a)
+    })
+    return keys.map((k) => ({ year: k, trips: map.get(k)! }))
+  }, [trips])
 
   const closeModal = () => {
     setModalOpen(false)
@@ -41,89 +88,124 @@ export function TripList() {
   return (
     <div style={{ padding: '20px', paddingBottom: '100px' }}>
       <h2 style={{ marginBottom: '20px' }}>✈️ 나의 여행 목록</h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {trips?.map((trip) => (
-          <button
-            key={trip.id}
-            type="button"
-            onPointerUp={() => navigate(`/trip/${trip.id}`)}
+      {grouped.map((group) => (
+        <React.Fragment key={group.year}>
+        <div style={{ marginBottom: '18px' }}>
+          <div
             style={{
-              display: 'block',
-              width: '100%',
-              textAlign: 'left',
-              padding: '20px',
-              border: '1px solid #ddd',
-              borderRadius: '10px',
-              cursor: 'pointer',
-              background: '#fff',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              color: 'inherit',
-              WebkitTapHighlightColor: 'transparent',
-              touchAction: 'manipulation',
-              WebkitUserSelect: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginBottom: '10px',
+              color: '#666',
+              fontWeight: 700,
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 'bold', fontSize: '18px' }}>{trip.name}</div>
-                <div style={{ color: '#888' }}>
-                  {trip.endDate ? `${trip.startDate} ~ ${trip.endDate}` : trip.startDate}
-                </div>
-              </div>
+            <span style={{ fontSize: '14px' }}>{group.year}</span>
+            <div style={{ height: '1px', background: '#e5e7eb', flex: 1 }} />
+          </div>
 
-              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+              gap: '10px',
+            }}
+          >
+            {group.trips.map((trip) => {
+              const total = sumTripAmount(trip)
+              return (
                 <button
+                  key={trip.id}
                   type="button"
-                  aria-label="여행 수정"
-                  onPointerUp={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    openEdit(trip)
-                  }}
+                  onPointerUp={() => navigate(`/trip/${trip.id}`)}
                   style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '10px',
-                    border: '1px solid #eee',
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '12px',
+                    border: '1px solid #ddd',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
                     background: '#fff',
-                    color: '#666',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
+                    color: 'inherit',
+                    WebkitTapHighlightColor: 'transparent',
                     touchAction: 'manipulation',
+                    WebkitUserSelect: 'none',
                   }}
                 >
-                  <IconPencil width={18} height={18} />
-                </button>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontWeight: 800, fontSize: '15px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {trip.name}
+                      </div>
+                      <div style={{ color: '#888', fontSize: '12px', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {trip.endDate ? `${trip.startDate} ~ ${trip.endDate}` : trip.startDate}
+                      </div>
+                    </div>
 
-                <button
-                  type="button"
-                  aria-label="여행 삭제"
-                  onPointerUp={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    void handleDeleteTrip(trip)
-                  }}
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '10px',
-                    border: '1px solid #eee',
-                    background: '#fff',
-                    color: '#d33',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    touchAction: 'manipulation',
-                  }}
-                >
-                  <IconTrash width={18} height={18} />
+                    <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                      <button
+                        type="button"
+                        aria-label="여행 수정"
+                        onPointerUp={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          openEdit(trip)
+                        }}
+                        style={{
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '9px',
+                          border: '1px solid #eee',
+                          background: '#fff',
+                          color: '#666',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          touchAction: 'manipulation',
+                        }}
+                      >
+                        <IconPencil width={14} height={14} />
+                      </button>
+
+                      <button
+                        type="button"
+                        aria-label="여행 삭제"
+                        onPointerUp={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          void handleDeleteTrip(trip)
+                        }}
+                        style={{
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '9px',
+                          border: '1px solid #eee',
+                          background: '#fff',
+                          color: '#d33',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          touchAction: 'manipulation',
+                        }}
+                      >
+                        <IconTrash width={14} height={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '8px', fontSize: '12px', color: '#2563eb', fontWeight: 800 }}>
+                    {total.toLocaleString()}원
+                  </div>
                 </button>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
+              )
+            })}
+          </div>
+        </div>
+        </React.Fragment>
+      ))}
 
       <button
         type="button"
