@@ -4,6 +4,7 @@ export interface Expense {
   content: string;
   amount: number;
   date: string;
+  memo?: string;
 }
 
 export interface Trip {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import type { Trip, Expense } from '../types'
@@ -9,11 +9,10 @@ export function TripDetail() {
   const navigate = useNavigate()
   const [trip, setTrip] = useState<Trip | null>(null)
   const [loading, setLoading] = useState(true)
-  const [addOpen, setAddOpen] = useState(false)
-  const [category, setCategory] = useState('식비')
-  const [content, setContent] = useState('')
-  const [amount, setAmount] = useState('')
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0])
+  const [rows, setRows] = useState<Expense[]>([])
+  const [saving, setSaving] = useState(false)
+  const saveTimer = useRef<number | null>(null)
+  const lastSavedJson = useRef<string>('')
 
   // 수파베이스에서 해당 여행 데이터 가져오기
   const fetchTrip = async () => {
@@ -29,6 +28,8 @@ export function TripDetail() {
       navigate('/')
     } else {
       setTrip(data)
+      setRows((data?.expenses || []).map((e: Expense) => ({ ...e, memo: e.memo ?? '' })))
+      lastSavedJson.current = JSON.stringify(data?.expenses || [])
     }
     setLoading(false)
   }
@@ -38,48 +39,66 @@ export function TripDetail() {
   // 경비 삭제 함수
   const handleDeleteExpense = async (expenseId: string) => {
     if (!trip || !confirm('이 경비를 삭제할까요?')) return
-    const newExpenses = trip.expenses.filter((e) => e.id !== expenseId)
-    await supabase.from('trips').update({ expenses: newExpenses }).eq('id', trip.id)
-    fetchTrip()
+    setRows((prev) => prev.filter((e) => e.id !== expenseId))
   }
 
-  const handleAddExpense = async () => {
+  const total = useMemo(
+    () => rows.reduce((acc, r) => acc + (Number(r.amount) || 0), 0),
+    [rows],
+  )
+
+  const scheduleSave = (nextRows: Expense[]) => {
     if (!trip) return
-    if (!content.trim()) {
-      alert('내용을 입력해 주세요.')
-      return
-    }
-    if (!amount || Number(amount) <= 0) {
-      alert('금액을 1원 이상 입력해 주세요.')
-      return
-    }
+    if (saveTimer.current) window.clearTimeout(saveTimer.current)
+    saveTimer.current = window.setTimeout(async () => {
+      const payload = nextRows.map((r) => ({
+        ...r,
+        memo: (r.memo ?? '').slice(0, 3),
+      }))
+      const nextJson = JSON.stringify(payload)
+      if (nextJson === lastSavedJson.current) return
 
-    const newExpense: Expense = {
+      setSaving(true)
+      const { error } = await supabase
+        .from('trips')
+        .update({ expenses: payload })
+        .eq('id', trip.id)
+      setSaving(false)
+
+      if (error) {
+        console.error('Error saving expenses:', error)
+        alert('저장에 실패했어요. 네트워크 상태를 확인하고 다시 시도해 주세요.')
+        return
+      }
+      lastSavedJson.current = nextJson
+    }, 600)
+  }
+
+  useEffect(() => {
+    scheduleSave(rows)
+    return () => {
+      if (saveTimer.current) window.clearTimeout(saveTimer.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, trip?.id])
+
+  const upsertRow = (id: string, patch: Partial<Expense>) => {
+    setRows((prev) => {
+      const next = prev.map((r) => (r.id === id ? { ...r, ...patch } : r))
+      return next
+    })
+  }
+
+  const addRow = () => {
+    const newRow: Expense = {
       id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
-      category,
-      content: content.trim(),
-      amount: Number(amount),
-      date,
+      category: '',
+      date: '',
+      content: '',
+      amount: 0,
+      memo: '',
     }
-
-    const nextExpenses = [...(trip.expenses || []), newExpense]
-    const { error } = await supabase
-      .from('trips')
-      .update({ expenses: nextExpenses })
-      .eq('id', trip.id)
-
-    if (error) {
-      console.error('Error adding expense:', error)
-      alert('경비 저장에 실패했어요. 다시 시도해 주세요.')
-      return
-    }
-
-    setAddOpen(false)
-    setCategory('식비')
-    setContent('')
-    setAmount('')
-    setDate(new Date().toISOString().split('T')[0])
-    fetchTrip()
+    setRows((prev) => [...prev, newRow])
   }
 
   if (loading) return <div className="p-10 text-center text-slate-400">불러오는 중...</div>
@@ -100,113 +119,90 @@ export function TripDetail() {
           </span>
         </button>
         <h1 className="text-lg font-bold text-slate-800">{trip.name}</h1>
+        <div className="ml-auto text-xs text-slate-400">{saving ? '저장 중…' : '자동 저장'}</div>
       </header>
 
       <main className="p-4">
-        {(!trip.expenses || trip.expenses.length === 0) ? (
-          <div className="py-20 text-center text-slate-400">등록된 경비가 없습니다.</div>
-        ) : (
-          <ul className="space-y-3">
-            {trip.expenses.map((ex: Expense) => (
-              <li key={ex.id} className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm">
-                <div>
-                  <p className="text-xs text-slate-400">{ex.category}</p>
-                  <p className="font-medium text-slate-800">{ex.content}</p>
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="grid grid-cols-[92px_1fr_120px_56px_44px] gap-0 border-b border-slate-200 bg-slate-50 px-2 py-2 text-xs font-semibold text-slate-600">
+            <div className="px-1">날짜</div>
+            <div className="px-1">내역</div>
+            <div className="px-1 text-right">금액</div>
+            <div className="px-1 text-center">메모</div>
+            <div className="px-1 text-center"> </div>
+          </div>
+
+          {rows.length === 0 ? (
+            <div className="p-6 text-center text-sm text-slate-400">행을 추가해서 입력해 주세요.</div>
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {rows.map((r) => (
+                <div
+                  key={r.id}
+                  className="grid grid-cols-[92px_1fr_120px_56px_44px] items-center gap-0 px-2 py-2"
+                >
+                  <input
+                    value={r.date ?? ''}
+                    onChange={(e) => upsertRow(r.id, { date: e.target.value })}
+                    placeholder="2/22"
+                    className="mx-1 h-9 rounded-md border border-slate-200 px-2 text-sm outline-none focus:ring-2 focus:ring-brand-500"
+                    inputMode="text"
+                  />
+                  <input
+                    value={r.content ?? ''}
+                    onChange={(e) => upsertRow(r.id, { content: e.target.value })}
+                    placeholder="내역"
+                    className="mx-1 h-9 w-full rounded-md border border-slate-200 px-2 text-sm outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                  <input
+                    value={String(r.amount ?? '')}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/[^\d]/g, '')
+                      upsertRow(r.id, { amount: v === '' ? 0 : Number(v) })
+                    }}
+                    placeholder="0"
+                    className="mx-1 h-9 rounded-md border border-slate-200 px-2 text-right text-sm outline-none focus:ring-2 focus:ring-brand-500"
+                    inputMode="numeric"
+                  />
+                  <input
+                    value={(r.memo ?? '').slice(0, 3)}
+                    onChange={(e) => upsertRow(r.id, { memo: e.target.value.slice(0, 3) })}
+                    placeholder=""
+                    maxLength={3}
+                    className="mx-1 h-9 rounded-md border border-slate-200 px-2 text-center text-sm outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteExpense(r.id)}
+                    aria-label="행 삭제"
+                    className="mx-auto inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-300 hover:text-slate-500 active:bg-slate-100"
+                  >
+                    <IconTrash className="h-4 w-4" />
+                  </button>
                 </div>
-                <div className="flex items-center gap-3">
-                  <p className="font-bold text-brand-600">{Number(ex.amount).toLocaleString()}원</p>
-                  <button onClick={() => handleDeleteExpense(ex.id)} className="text-slate-300"><IconTrash className="h-4 w-4" /></button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+              ))}
+            </div>
+          )}
+
+          <div className="grid grid-cols-[92px_1fr_120px_56px_44px] items-center gap-0 border-t border-slate-200 px-2 py-2">
+            <div className="px-1 text-xs text-slate-400" />
+            <div className="px-1 text-xs text-slate-400" />
+            <div className="mx-1 rounded-md bg-yellow-200 px-2 py-2 text-right text-sm font-bold text-slate-900">
+              {total.toLocaleString()}
+            </div>
+            <div />
+            <div />
+          </div>
+        </div>
       </main>
 
       <button
         type="button"
-        onClick={() => setAddOpen(true)}
+        onClick={addRow}
         className="fixed bottom-8 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg"
       >
         <IconPlus className="h-7 w-7" />
       </button>
-
-      {addOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-4 text-lg font-bold text-slate-800">경비 추가</h3>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-slate-500">카테고리</label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm"
-                >
-                  <option value="식비">식비</option>
-                  <option value="교통">교통</option>
-                  <option value="숙박">숙박</option>
-                  <option value="관광">관광</option>
-                  <option value="쇼핑">쇼핑</option>
-                  <option value="기타">기타</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-500">내용</label>
-                <input
-                  type="text"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="예: 저녁 식사"
-                  className="mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-slate-500">금액</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0"
-                    className="mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500">날짜</label>
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 flex gap-2">
-              <button
-                type="button"
-                onClick={() => setAddOpen(false)}
-                className="flex-1 rounded-lg bg-slate-100 py-2 text-sm font-medium text-slate-600"
-              >
-                취소
-              </button>
-              <button
-                type="button"
-                onClick={handleAddExpense}
-                className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white"
-              >
-                저장하기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
