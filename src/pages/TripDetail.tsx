@@ -105,13 +105,13 @@ export function TripDetail() {
   if (!trip) return null
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
-      <header className="sticky top-0 z-30 flex items-center gap-3 bg-white px-4 py-4 shadow-sm">
+    <div className="min-h-screen bg-white pb-20">
+      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200 bg-white px-3 py-3">
         <button
           type="button"
           onClick={() => navigate('/')}
           aria-label="여행 목록으로"
-          className="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm font-medium text-slate-600 active:bg-slate-100"
+          className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-slate-700 active:bg-slate-100"
         >
           <span>앞으로 가기</span>
           <span aria-hidden="true" className="text-slate-400">
@@ -122,60 +122,72 @@ export function TripDetail() {
         <div className="ml-auto text-xs text-slate-400">{saving ? '저장 중…' : '자동 저장'}</div>
       </header>
 
-      <main className="p-4">
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="grid grid-cols-[92px_1fr_120px_56px_44px] gap-0 border-b border-slate-200 bg-slate-50 px-2 py-2 text-xs font-semibold text-slate-600">
-            <div className="px-1">날짜</div>
-            <div className="px-1">내역</div>
-            <div className="px-1 text-right">금액</div>
-            <div className="px-1 text-center">메모</div>
-            <div className="px-1 text-center"> </div>
-          </div>
+      <main className="px-0 py-0">
+        <div className="excel-sheet w-full overflow-x-auto">
+          <div
+            className="min-w-[520px] border-b border-slate-200"
+            style={{ borderTop: '1px solid rgb(226 232 240)' }}
+          >
+            <div className="grid grid-cols-[88px_1fr_140px_60px_44px] bg-[#f6edd6] text-xs font-semibold text-slate-700">
+              <div className="border-r border-slate-200 px-2 py-2 text-center">날짜</div>
+              <div className="border-r border-slate-200 px-2 py-2 text-center">내역</div>
+              <div className="border-r border-slate-200 px-2 py-2 text-center">금액</div>
+              <div className="border-r border-slate-200 px-2 py-2 text-center">메모</div>
+              <div className="px-2 py-2 text-center" />
+            </div>
 
           {rows.length === 0 ? (
             <div className="p-6 text-center text-sm text-slate-400">행을 추가해서 입력해 주세요.</div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div>
               {rows.map((r) => (
                 <div
                   key={r.id}
-                  className="grid grid-cols-[92px_1fr_120px_56px_44px] items-center gap-0 px-2 py-2"
+                  className="grid grid-cols-[88px_1fr_140px_60px_44px] items-stretch border-t border-slate-200"
                 >
-                  <input
-                    value={r.date ?? ''}
-                    onChange={(e) => upsertRow(r.id, { date: e.target.value })}
-                    placeholder="2/22"
-                    className="mx-1 h-9 rounded-md border border-slate-200 px-2 text-sm outline-none focus:ring-2 focus:ring-brand-500"
-                    inputMode="text"
-                  />
-                  <input
-                    value={r.content ?? ''}
-                    onChange={(e) => upsertRow(r.id, { content: e.target.value })}
-                    placeholder="내역"
-                    className="mx-1 h-9 w-full rounded-md border border-slate-200 px-2 text-sm outline-none focus:ring-2 focus:ring-brand-500"
-                  />
-                  <input
-                    value={String(r.amount ?? '')}
-                    onChange={(e) => {
-                      const v = e.target.value.replace(/[^\d]/g, '')
-                      upsertRow(r.id, { amount: v === '' ? 0 : Number(v) })
-                    }}
-                    placeholder="0"
-                    className="mx-1 h-9 rounded-md border border-slate-200 px-2 text-right text-sm outline-none focus:ring-2 focus:ring-brand-500"
-                    inputMode="numeric"
-                  />
-                  <input
-                    value={(r.memo ?? '').slice(0, 3)}
-                    onChange={(e) => upsertRow(r.id, { memo: e.target.value.slice(0, 3) })}
-                    placeholder=""
-                    maxLength={3}
-                    className="mx-1 h-9 rounded-md border border-slate-200 px-2 text-center text-sm outline-none focus:ring-2 focus:ring-brand-500"
-                  />
+                  <div className="border-r border-slate-200">
+                    <input
+                      value={r.date ?? ''}
+                      onChange={(e) => upsertRow(r.id, { date: e.target.value })}
+                      placeholder="2/22"
+                      className="h-10 w-full bg-transparent px-2 text-sm outline-none"
+                      inputMode="text"
+                    />
+                  </div>
+                  <div className="border-r border-slate-200">
+                    <input
+                      value={r.content ?? ''}
+                      onChange={(e) => upsertRow(r.id, { content: e.target.value })}
+                      placeholder="내역"
+                      className="h-10 w-full bg-transparent px-2 text-sm outline-none"
+                    />
+                  </div>
+                  <div className="border-r border-slate-200">
+                    <input
+                      value={String(r.amount ?? '')}
+                      onChange={(e) => {
+                        const v = e.target.value.replace(/[^\d]/g, '')
+                        upsertRow(r.id, { amount: v === '' ? 0 : Number(v) })
+                      }}
+                      placeholder="0"
+                      className="h-10 w-full bg-transparent px-2 text-right text-sm outline-none"
+                      inputMode="numeric"
+                    />
+                  </div>
+                  <div className="border-r border-slate-200">
+                    <input
+                      value={(r.memo ?? '').slice(0, 3)}
+                      onChange={(e) => upsertRow(r.id, { memo: e.target.value.slice(0, 3) })}
+                      placeholder=""
+                      maxLength={3}
+                      className="h-10 w-full bg-transparent px-1 text-center text-sm outline-none"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => handleDeleteExpense(r.id)}
                     aria-label="행 삭제"
-                    className="mx-auto inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-300 hover:text-slate-500 active:bg-slate-100"
+                    className="inline-flex h-10 w-full items-center justify-center text-slate-300 hover:text-slate-500 active:bg-slate-100"
                   >
                     <IconTrash className="h-4 w-4" />
                   </button>
@@ -184,15 +196,16 @@ export function TripDetail() {
             </div>
           )}
 
-          <div className="grid grid-cols-[92px_1fr_120px_56px_44px] items-center gap-0 border-t border-slate-200 px-2 py-2">
-            <div className="px-1 text-xs text-slate-400" />
-            <div className="px-1 text-xs text-slate-400" />
-            <div className="mx-1 rounded-md bg-yellow-200 px-2 py-2 text-right text-sm font-bold text-slate-900">
+          <div className="grid grid-cols-[88px_1fr_140px_60px_44px] items-stretch border-t border-slate-200">
+            <div className="border-r border-slate-200" />
+            <div className="border-r border-slate-200" />
+            <div className="border-r border-slate-200 bg-yellow-300 px-2 py-2 text-right text-base font-bold text-slate-900">
               {total.toLocaleString()}
             </div>
-            <div />
+            <div className="border-r border-slate-200" />
             <div />
           </div>
+        </div>
         </div>
       </main>
 
