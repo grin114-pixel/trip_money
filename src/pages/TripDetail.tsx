@@ -88,7 +88,14 @@ export function TripDetail() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       <header className="sticky top-0 z-30 flex items-center gap-3 bg-white px-4 py-4 shadow-sm">
-        <button onClick={() => navigate('/')} className="p-1 text-slate-500"><IconArrowLeft /></button>
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          aria-label="여행 목록으로"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 active:bg-slate-100"
+        >
+          <IconArrowLeft className="h-5 w-5" />
+        </button>
         <h1 className="text-lg font-bold text-slate-800">{trip.name}</h1>
       </header>
 
