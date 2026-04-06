@@ -66,7 +66,9 @@ export function TripList() {
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 'bold', fontSize: '18px' }}>{trip.name}</div>
-                <div style={{ color: '#888' }}>{trip.startDate} ~ {trip.endDate}</div>
+                <div style={{ color: '#888' }}>
+                  {trip.endDate ? `${trip.startDate} ~ ${trip.endDate}` : trip.startDate}
+                </div>
               </div>
 
               <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
@@ -148,8 +150,11 @@ export function TripList() {
         <TripModal 
           mode={editingTrip ? 'edit' : 'create'}
           initialName={editingTrip?.name ?? ''}
-          initialStartDate={editingTrip?.startDate ?? ''}
-          initialEndDate={editingTrip?.endDate ?? ''}
+          initialTripDate={
+            editingTrip?.endDate
+              ? `${editingTrip.startDate} ~ ${editingTrip.endDate}`
+              : (editingTrip?.startDate ?? '')
+          }
           onClose={closeModal}
           onSave={async (p) => { 
             if (editingTrip) {
