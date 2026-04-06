@@ -1,106 +1,81 @@
-import './App.css';
-import { supabase } from './supabase'; // 아까 만든 설정 파일 불러오기
-
-interface TripItem {
-  id?: number;
-  content: string;
-  amount: number;
-  date: string;
-  category: string;
-}
+import { useState, useEffect } from 'react'
+import { supabase } from './supabase'
 
 function App() {
-  const [list, setList] = useState<TripItem[]>([]);
-  const [content, setContent] = useState('');
-  const [amount, setAmount] = useState('');
+  const [items, setItems] = useState<any[]>([])
+  const [text, setText] = useState('')
+  const [amount, setAmount] = useState('')
 
-  // 1. 앱이 켜질 때 실행되는 함수
+  // 1. 데이터 불러오기
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
-  // 2. 데이터 가져오기 (금고에서 데이터 꺼내오기)
-  const fetchData = async () => {
-    // 우선 온라인 금고(Supabase)에서 데이터를 가져옵니다.
+  async function fetchData() {
     const { data, error } = await supabase
-      .from('trips')
+      .from('trip_money')
       .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching data:', error);
-    } else {
-      // 만약 금고가 비어있고, 내 컴퓨터(localStorage)에 옛날 데이터가 있다면?
-      const localData = localStorage.getItem('trips');
-      if ((!data || data.length === 0) && localData) {
-        const parsedLocal = JSON.parse(localData);
-        // 이사하기: 로컬 데이터를 수파베이스로 몽땅 업로드!
-        await migrateData(parsedLocal);
-      } else {
-        setList(data || []);
-      }
-    }
-  };
-
-  // 3. 이사 코드 (로컬 -> 수파베이스)
-  const migrateData = async (oldData: TripItem[]) => {
-    const { error } = await supabase.from('trips').insert(oldData);
-    if (!error) {
-      localStorage.removeItem('trips'); // 이사 완료 후 옛날 짐은 버리기
-      fetchData(); // 다시 새로고침
-    }
-  };
-
-  // 4. 새 데이터 추가하기
-  const addEntry = async () => {
-    if (!content || !amount) return;
-
-    const newItem = {
-      content,
-      amount: Number(amount),
-      date: new Date().toISOString().split('T')[0],
-      category: '일반',
-    };
-
-    const { error } = await supabase.from('trips').insert([newItem]);
+      .order('id', { ascending: false })
     
+    if (error) console.error('Error fetching:', error)
+    else setItems(data || [])
+  }
+
+  // 2. 데이터 추가하기
+  async function addItem() {
+    if (!text || !amount) return alert('내용과 금액을 입력해주세요!')
+
+    const { error } = await supabase
+      .from('trip_money')
+      .insert([{ text, amount: Number(amount) }])
+
     if (error) {
-      alert('저장 실패: ' + error.message);
+      console.error('Error inserting:', error)
     } else {
-      setContent('');
-      setAmount('');
-      fetchData(); // 등록 후 다시 목록 가져오기
+      setText('')
+      setAmount('')
+      fetchData()
     }
-  };
+  }
 
   return (
-    <div className="App">
-      <h1>✈️ 여행 경비 (동기화 중)</h1>
-      <div className="input-group">
-        <input 
-          placeholder="내용 (예: 점심식사)" 
-          value={content} 
-          onChange={(e) => setContent(e.target.value)} 
+    <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto', fontFamily: 'sans-serif' }}>
+      <h1>✈️ 여행 가계부</h1>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+        <input
+          placeholder="내용 (예: 점심 식사)"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          style={{ padding: '10px' }}
         />
-        <input 
-          type="number" 
-          placeholder="금액" 
-          value={amount} 
-          onChange={(e) => setAmount(e.target.value)} 
+        <input
+          type="number"
+          placeholder="금액 (예: 15000)"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          style={{ padding: '10px' }}
         />
-        <button onClick={addEntry}>추가</button>
+        <button 
+          onClick={addItem}
+          style={{ padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}
+        >
+          추가하기
+        </button>
       </div>
 
-      <div className="list">
-        {list.map((item, index) => (
-          <div key={item.id || index} className="item">
-            <span>{item.content}</span>
-            <span>{item.amount.toLocaleString()}원</span>
-          </div>
+      <hr />
+
+      <ul style={{ listStyle: 'none', padding: 0 }}>
+        {items.map((item: any) => (
+          <li key={item.id} style={{ padding: '10px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between' }}>
+            <span>{item.text}</span>
+            <span style={{ fontWeight: 'bold' }}>{item.amount.toLocaleString()}원</span>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
