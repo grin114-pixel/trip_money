@@ -1,4 +1,4 @@
-import type { Trip, Expense } from './types'
+import type { Trip } from './types'
 
 // 여행의 총 경비를 계산하는 함수입니다.
 // 데이터가 비어있거나(null) 잘못되어도 에러가 나지 않게 보호 장치를 넣었습니다.
@@ -11,8 +11,14 @@ export function sumExpenses(trip: Trip): number {
   return trip.expenses.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0)
 }
 
+export function loadTrips(): Trip[] {
+  return []
+}
+
+export function saveTrips(_trips: Trip[]): void {}
+
 // 이 아래는 지금은 사용하지 않지만, 에러 방지를 위해 남겨둡니다.
 export const storage = {
   getTrips: (): Trip[] => [],
-  saveTrips: (trips: Trip[]) => { console.log('Supabase를 사용 중이므로 로컬 저장은 무시됩니다.', trips) }
+  saveTrips: (_trips: Trip[]) => {},
 }

@@ -48,3 +48,5 @@ export function IconChevronLeft(props: SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
+export const IconArrowLeft = IconChevronLeft
