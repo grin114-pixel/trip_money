@@ -44,34 +44,36 @@ export function TripList() {
     setModalOpen(true)
   }
 
-  const handleSaveTrip = (payload: {
+  const handleSaveTrip = async (payload: {
     name: string
     startDate: string
     endDate: string
   }) => {
     if (editingId) {
-      setTrips((prev) =>
-        prev.map((t) =>
-          t.id === editingId
-            ? { ...t, name: payload.name, startDate: payload.startDate, endDate: payload.endDate }
-            : t,
-        ),
-      )
+      // 수정하기
+      await supabase
+        .from('trips')
+        .update({ name: payload.name, startDate: payload.startDate, endDate: payload.endDate })
+        .eq('id', editingId)
     } else {
-      const trip: Trip = {
-        id: createId(),
-        name: payload.name,
-        startDate: payload.startDate,
-        endDate: payload.endDate,
-        expenses: [],
-      }
-      setTrips((prev) => [...prev, trip])
+      // 새로 만들기
+      await supabase
+        .from('trips')
+        .insert([{ 
+          name: payload.name, 
+          startDate: payload.startDate, 
+          endDate: payload.endDate,
+          expenses: [] // 초기 경비는 빈 배열
+        }])
     }
+    // 저장 후 다시 불러오기
+    window.location.reload() 
   }
 
-  const handleDelete = (id: string, name: string) => {
-    if (!confirm(`「${name}」 여행을 삭제할까요? 내역도 모두 지워집니다.`)) return
-    setTrips((prev) => prev.filter((t) => t.id !== id))
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`「${name}」 여행을 삭제할까요?`)) return
+    await supabase.from('trips').delete().eq('id', id)
+    window.location.reload()
   }
 
   return (
