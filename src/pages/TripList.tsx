@@ -1,51 +1,64 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { TripModal } from '../components/TripModal'
-import { formatTripRange, getYearFromDate } from '../utils'
-import type { Trip } from '../types'
+import { IconPlus } from '../components/Icons'
 import { useTrips } from '../trips/useTrips'
 import { supabase } from '../supabase'
 
 export function TripList() {
   const { trips, refresh } = useTrips()
   const [modalOpen, setModalOpen] = useState(false)
-
-  const moveData = async () => {
-    const local = localStorage.getItem('trips')
-    if (!local) return alert('이사할 데이터가 없어요!')
-    const parsed = JSON.parse(local)
-    if (window.confirm(`${parsed.length}개의 데이터를 이사할까요?`)) {
-      for (const item of parsed) {
-        await supabase.from('trips').insert([{
-          name: item.name, startDate: item.startDate, endDate: item.endDate, expenses: item.expenses || []
-        }])
-      }
-      alert('이사 완료!')
-      localStorage.removeItem('trips')
-      refresh()
-    }
-  }
+  const navigate = useNavigate()
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', maxWidth: '500px', margin: '0 auto' }}>
+      <h2 style={{ marginBottom: '20px' }}>✈️ 나의 여행 목록</h2>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        {trips?.map((trip) => (
+          <div 
+            key={trip.id} 
+            onClick={() => navigate(`/trip/${trip.id}`)}
+            style={{ 
+              padding: '20px', 
+              border: '1px solid #eee', 
+              borderRadius: '12px', 
+              cursor: 'pointer',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+            }}
+          >
+            <div style={{ fontWeight: 'bold', fontSize: '18px' }}>{trip.name}</div>
+            <div style={{ color: '#888', fontSize: '14px', marginTop: '5px' }}>
+              {trip.startDate} ~ {trip.endDate}
+            </div>
+          </div>
+        ))}
+      </div>
+
       <button 
-        onClick={moveData}
-        style={{ width: '100%', padding: '20px', background: 'orange', color: 'white', fontWeight: 'bold', marginBottom: '20px', borderRadius: '10px' }}
+        onClick={() => setModalOpen(true)}
+        style={{ 
+          position: 'fixed', bottom: '30px', right: '30px', 
+          width: '60px', height: '60px', borderRadius: '50%', 
+          background: '#007bff', color: 'white', border: 'none',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 4px 12px rgba(0,123,255,0.3)'
+        }}
       >
-        🚀 내 예전 데이터 수파베이스로 한꺼번에 보내기
+        <IconPlus />
       </button>
 
-      {trips?.map((trip: Trip) => (
-        <div key={trip.id} style={{ border: '1px solid #ddd', padding: '10px', marginBottom: '10px', borderRadius: '8px' }}>
-          <p><strong>{trip.name}</strong></p>
-          <p style={{ fontSize: '12px', color: '#888' }}>{trip.startDate} ~ {trip.endDate}</p>
-        </div>
-      ))}
-
-      <button onClick={() => setModalOpen(true)} style={{ position: 'fixed', bottom: '20px', right: '20px', width: '50px', height: '50px', borderRadius: '50%', background: '#007bff', color: 'white' }}>+</button>
-
       {modalOpen && (
-        <TripModal mode="create" initialName="" initialDate="" onClose={() => setModalOpen(false)} 
-          onSave={async (p) => { await supabase.from('trips').insert([{ ...p, expenses: [] }]); setModalOpen(false); refresh(); }} 
+        <TripModal 
+          mode="create" 
+          initialName="" 
+          initialDate="" 
+          onClose={() => setModalOpen(false)} 
+          onSave={async (p) => { 
+            await supabase.from('trips').insert([{ ...p, expenses: [] }]); 
+            setModalOpen(false); 
+            refresh(); 
+          }} 
         />
       )}
     </div>

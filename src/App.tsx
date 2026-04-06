@@ -1,5 +1,5 @@
-import { TripList } from './pages/TripList'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { TripList } from './pages/TripList'
 import { TripDetail } from './pages/TripDetail'
 
 function App() {
