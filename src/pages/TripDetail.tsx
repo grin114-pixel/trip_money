@@ -89,16 +89,19 @@ export function TripDetail() {
     })
   }
 
-  const addRow = () => {
-    const newRow: Expense = {
-      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
-      category: '',
-      date: '',
-      content: '',
-      amount: 0,
-      memo: '',
-    }
-    setRows((prev) => [...prev, newRow])
+  const makeEmptyRow = (): Expense => ({
+    id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+    category: '',
+    date: '',
+    content: '',
+    amount: 0,
+    memo: '',
+  })
+
+  const addRows = (count: number) => {
+    const safeCount = Math.max(1, Math.min(20, Math.floor(count)))
+    const newRows = Array.from({ length: safeCount }, () => makeEmptyRow())
+    setRows((prev) => [...prev, ...newRows])
   }
 
   if (loading) return <div className="p-10 text-center text-slate-400">불러오는 중...</div>
@@ -125,7 +128,7 @@ export function TripDetail() {
       <main className="px-0 py-0">
         <div className="excel-sheet w-full overflow-hidden">
           <div className="w-full border-b border-slate-200" style={{ borderTop: '1px solid rgb(226 232 240)' }}>
-            <div className="grid grid-cols-[64px_1fr_96px_44px_36px] bg-[#f6edd6] text-xs font-semibold text-slate-700 sm:grid-cols-[76px_1fr_120px_56px_44px]">
+            <div className="grid grid-cols-[56px_1fr_88px_44px_36px] bg-[#f6edd6] text-xs font-semibold text-slate-700 sm:grid-cols-[68px_1fr_110px_56px_44px]">
               <div className="border-r border-slate-200 px-2 py-2 text-center">날짜</div>
               <div className="border-r border-slate-200 px-2 py-2 text-center">내역</div>
               <div className="border-r border-slate-200 px-2 py-2 text-center">금액</div>
@@ -140,14 +143,13 @@ export function TripDetail() {
               {rows.map((r) => (
                 <div
                   key={r.id}
-                  className="grid grid-cols-[64px_1fr_96px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[76px_1fr_120px_56px_44px]"
+                  className="grid grid-cols-[56px_1fr_88px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[68px_1fr_110px_56px_44px]"
                 >
                   <div className="border-r border-slate-200">
                     <input
                       value={r.date ?? ''}
                       onChange={(e) => upsertRow(r.id, { date: e.target.value })}
-                      placeholder="2/22"
-                      className="h-10 w-full bg-transparent px-1 text-sm outline-none sm:px-2"
+                      className="h-10 w-full bg-transparent px-1 text-center text-sm outline-none sm:px-2"
                       inputMode="text"
                     />
                   </div>
@@ -193,7 +195,7 @@ export function TripDetail() {
             </div>
           )}
 
-          <div className="grid grid-cols-[64px_1fr_96px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[76px_1fr_120px_56px_44px]">
+          <div className="grid grid-cols-[56px_1fr_88px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[68px_1fr_110px_56px_44px]">
             <div className="border-r border-slate-200" />
             <div className="border-r border-slate-200" />
             <div className="border-r border-slate-200 bg-yellow-300 px-2 py-2 text-right text-base font-bold text-slate-900">
@@ -206,13 +208,24 @@ export function TripDetail() {
         </div>
       </main>
 
-      <button
-        type="button"
-        onClick={addRow}
-        className="fixed bottom-8 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg"
-      >
-        <IconPlus className="h-7 w-7" />
-      </button>
+      <div className="fixed bottom-6 right-4 z-40 flex flex-col gap-2">
+        <button
+          type="button"
+          onClick={() => addRows(1)}
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-lg active:scale-[0.99]"
+        >
+          <IconPlus className="h-5 w-5" />
+          1줄 추가
+        </button>
+        <button
+          type="button"
+          onClick={() => addRows(5)}
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-lg active:scale-[0.99]"
+        >
+          <IconPlus className="h-5 w-5" />
+          5줄 추가
+        </button>
+      </div>
     </div>
   )
 }
