@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import type { Trip, Expense } from '../types'
-import { IconPlus, IconTrash } from '../components/Icons'
+import { IconChevronLeft, IconPlus, IconTrash } from '../components/Icons'
 
 export function TripDetail() {
   const { id } = useParams()
@@ -89,6 +89,23 @@ export function TripDetail() {
     })
   }
 
+  const handleEnterMoveDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+
+    const el = e.currentTarget
+    const col = el.dataset.col
+    if (!col) return
+
+    const rowEl = el.closest('[data-row]')
+    const nextRow = rowEl?.nextElementSibling as HTMLElement | null
+    if (!nextRow) return
+
+    const nextInput = nextRow.querySelector<HTMLInputElement>(`input[data-col="${col}"]`)
+    nextInput?.focus()
+    nextInput?.select?.()
+  }
+
   const makeEmptyRow = (): Expense => ({
     id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
     category: '',
@@ -109,17 +126,14 @@ export function TripDetail() {
 
   return (
     <div className="min-h-screen bg-white pb-20">
-      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200 bg-white px-3 py-3">
+      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200 bg-white px-2 py-2">
         <button
           type="button"
           onClick={() => navigate('/')}
           aria-label="여행 목록으로"
-          className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-slate-700 active:bg-slate-100"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 text-slate-700 active:bg-slate-100"
         >
-          <span>앞으로 가기</span>
-          <span aria-hidden="true" className="text-slate-400">
-            &gt;
-          </span>
+          <IconChevronLeft className="h-5 w-5" />
         </button>
         <h1 className="text-lg font-bold text-slate-800">{trip.name}</h1>
         <div className="ml-auto text-xs text-slate-400">{saving ? '저장 중…' : '자동 저장'}</div>
@@ -129,11 +143,11 @@ export function TripDetail() {
         <div className="excel-sheet w-full overflow-hidden">
           <div className="w-full border-b border-slate-200" style={{ borderTop: '1px solid rgb(226 232 240)' }}>
             <div className="grid grid-cols-[56px_1fr_88px_44px_36px] bg-[#f6edd6] text-xs font-semibold text-slate-700 sm:grid-cols-[68px_1fr_110px_56px_44px]">
-              <div className="border-r border-slate-200 px-2 py-2 text-center">날짜</div>
-              <div className="border-r border-slate-200 px-2 py-2 text-center">내역</div>
-              <div className="border-r border-slate-200 px-2 py-2 text-center">금액</div>
-              <div className="border-r border-slate-200 px-2 py-2 text-center">메모</div>
-              <div className="px-2 py-2 text-center" />
+              <div className="border-r border-slate-200 px-2 py-1.5 text-center">날짜</div>
+              <div className="border-r border-slate-200 px-2 py-1.5 text-center">내역</div>
+              <div className="border-r border-slate-200 px-2 py-1.5 text-center">금액</div>
+              <div className="border-r border-slate-200 px-2 py-1.5 text-center">메모</div>
+              <div className="px-2 py-1.5 text-center" />
             </div>
 
           {rows.length === 0 ? (
@@ -143,13 +157,16 @@ export function TripDetail() {
               {rows.map((r) => (
                 <div
                   key={r.id}
+                  data-row
                   className="grid grid-cols-[56px_1fr_88px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[68px_1fr_110px_56px_44px]"
                 >
                   <div className="border-r border-slate-200">
                     <input
                       value={r.date ?? ''}
                       onChange={(e) => upsertRow(r.id, { date: e.target.value })}
-                      className="h-10 w-full bg-transparent px-1 text-center text-sm outline-none sm:px-2"
+                      data-col="date"
+                      onKeyDown={handleEnterMoveDown}
+                      className="h-9 w-full bg-transparent px-1 text-center text-sm outline-none sm:px-2"
                       inputMode="text"
                     />
                   </div>
@@ -158,7 +175,9 @@ export function TripDetail() {
                       value={r.content ?? ''}
                       onChange={(e) => upsertRow(r.id, { content: e.target.value })}
                       placeholder="내역"
-                      className="h-10 w-full bg-transparent px-2 text-sm outline-none"
+                      data-col="content"
+                      onKeyDown={handleEnterMoveDown}
+                      className="h-9 w-full bg-transparent px-2 text-sm outline-none"
                     />
                   </div>
                   <div className="border-r border-slate-200">
@@ -169,7 +188,9 @@ export function TripDetail() {
                         upsertRow(r.id, { amount: v === '' ? 0 : Number(v) })
                       }}
                       placeholder="0"
-                      className="h-10 w-full bg-transparent px-1 text-right text-sm outline-none sm:px-2"
+                      data-col="amount"
+                      onKeyDown={handleEnterMoveDown}
+                      className="h-9 w-full bg-transparent px-1 text-right text-sm outline-none sm:px-2"
                       inputMode="numeric"
                     />
                   </div>
@@ -179,14 +200,16 @@ export function TripDetail() {
                       onChange={(e) => upsertRow(r.id, { memo: e.target.value.slice(0, 3) })}
                       placeholder=""
                       maxLength={3}
-                      className="h-10 w-full bg-transparent px-1 text-center text-sm outline-none"
+                      data-col="memo"
+                      onKeyDown={handleEnterMoveDown}
+                      className="h-9 w-full bg-transparent px-1 text-center text-sm outline-none"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => handleDeleteExpense(r.id)}
                     aria-label="행 삭제"
-                    className="inline-flex h-10 w-full items-center justify-center text-slate-300 hover:text-slate-500 active:bg-slate-100"
+                    className="inline-flex h-9 w-full items-center justify-center text-slate-300 hover:text-slate-500 active:bg-slate-100"
                   >
                     <IconTrash className="h-4 w-4" />
                   </button>
@@ -198,7 +221,7 @@ export function TripDetail() {
           <div className="grid grid-cols-[56px_1fr_88px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[68px_1fr_110px_56px_44px]">
             <div className="border-r border-slate-200" />
             <div className="border-r border-slate-200" />
-            <div className="border-r border-slate-200 bg-yellow-300 px-2 py-2 text-right text-base font-bold text-slate-900">
+            <div className="border-r border-slate-200 bg-yellow-300 px-2 py-2 text-right text-sm font-bold text-slate-900">
               {total.toLocaleString()}
             </div>
             <div className="border-r border-slate-200" />
