@@ -163,7 +163,7 @@ export function TripDetail() {
                   </div>
                   <div className="border-r border-slate-200">
                     <input
-                      value={String(r.amount ?? '')}
+                      value={Number(r.amount) ? Number(r.amount).toLocaleString() : ''}
                       onChange={(e) => {
                         const v = e.target.value.replace(/[^\d]/g, '')
                         upsertRow(r.id, { amount: v === '' ? 0 : Number(v) })
