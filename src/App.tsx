@@ -5,13 +5,10 @@ import { TripDetail } from './pages/TripDetail'
 function App() {
   return (
     <Router>
-      <div className="App">
-        <Routes>
-          {/* 메인 화면에 무조건 TripList가 나오도록 고정 */}
-          <Route path="/" element={<TripList />} />
-          <Route path="/trip/:id" element={<TripDetail />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/" element={<TripList />} />
+        <Route path="/trip/:id" element={<TripDetail />} />
+      </Routes>
     </Router>
   )
 }
