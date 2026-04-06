@@ -1,25 +1,18 @@
-import type { Trip } from './types'
-import { STORAGE_KEY } from './types'
+import type { Trip, Expense } from './types'
 
-function safeParse(raw: string | null): Trip[] {
-  if (!raw) return []
-  try {
-    const data = JSON.parse(raw) as unknown
-    if (!Array.isArray(data)) return []
-    return data as Trip[]
-  } catch {
-    return []
-  }
-}
-
-export function loadTrips(): Trip[] {
-  return safeParse(localStorage.getItem(STORAGE_KEY))
-}
-
-export function saveTrips(trips: Trip[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(trips))
-}
-
+// 여행의 총 경비를 계산하는 함수입니다.
+// 데이터가 비어있거나(null) 잘못되어도 에러가 나지 않게 보호 장치를 넣었습니다.
 export function sumExpenses(trip: Trip): number {
-  return trip.expenses.reduce((s, e) => s + (Number.isFinite(e.amount) ? e.amount : 0), 0)
+  // 만약 trip이나 expenses가 없으면 0을 반환합니다.
+  if (!trip || !trip.expenses || !Array.isArray(trip.expenses)) {
+    return 0
+  }
+
+  return trip.expenses.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0)
+}
+
+// 이 아래는 지금은 사용하지 않지만, 에러 방지를 위해 남겨둡니다.
+export const storage = {
+  getTrips: (): Trip[] => [],
+  saveTrips: (trips: Trip[]) => { console.log('Supabase를 사용 중이므로 로컬 저장은 무시됩니다.', trips) }
 }
