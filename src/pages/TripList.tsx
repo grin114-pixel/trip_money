@@ -4,9 +4,14 @@ import { TripModal } from '../components/TripModal'
 import { IconPencil, IconPlus, IconTrash } from '../components/Icons'
 import { formatTripRange, getYearFromDate } from '../utils'
 import type { Trip } from '../types'
-import { sumExpenses } from '../storage'
 import { useTrips } from '../trips/useTrips'
-import { supabase } from '../supabase' // 이 줄이 꼭 있어야 합니다!
+import { supabase } from '../supabase'
+
+// 경비 합계를 안전하게 계산하는 함수 (에러 방지용)
+function safeSum(trip: Trip): number {
+  if (!trip.expenses || !Array.isArray(trip.expenses)) return 0
+  return trip.expenses.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0)
+}
 
 function sortTripsDesc(trips: Trip[]): Trip[] {
   return [...trips].sort((a, b) => {
@@ -20,7 +25,7 @@ export function TripList() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
-  const sorted = useMemo(() => sortTripsDesc(trips), [trips])
+  const sorted = useMemo(() => sortTripsDesc(trips || []), [trips])
 
   const byYear = useMemo(() => {
     const map = new Map<number, Trip[]>()
@@ -33,16 +38,6 @@ export function TripList() {
   }, [sorted])
 
   const editingTrip = editingId ? trips.find((t) => t.id === editingId) : undefined
-
-  const openCreate = () => {
-    setEditingId(null)
-    setModalOpen(true)
-  }
-
-  const openEdit = (id: string) => {
-    setEditingId(id)
-    setModalOpen(true)
-  }
 
   const handleSaveTrip = async (payload: { name: string, startDate: string, endDate: string }) => {
     if (editingId) {
@@ -82,13 +77,13 @@ export function TripList() {
                           <div className="flex items-center justify-between">
                             <p className="truncate text-sm font-bold text-lime-600">{trip.name}</p>
                             <div className="flex gap-1 pointer-events-auto">
-                              <button onClick={(e) => { e.preventDefault(); openEdit(trip.id); }} className="p-1 text-slate-400"><IconPencil className="h-3.5 w-3.5" /></button>
+                              <button onClick={(e) => { e.preventDefault(); setEditingId(trip.id); setModalOpen(true); }} className="p-1 text-slate-400"><IconPencil className="h-3.5 w-3.5" /></button>
                               <button onClick={(e) => { e.preventDefault(); handleDelete(trip.id, trip.name); }} className="p-1 text-slate-400"><IconTrash className="h-3.5 w-3.5" /></button>
                             </div>
                           </div>
                           <div className="mt-2 flex justify-between items-baseline">
                             <p className="text-[10px] text-slate-500">{formatTripRange(trip.startDate, trip.endDate)}</p>
-                            <p className="text-xs font-semibold text-slate-500">{sumExpenses(trip).toLocaleString()}원</p>
+                            <p className="text-xs font-semibold text-slate-500">{safeSum(trip).toLocaleString()}원</p>
                           </div>
                         </div>
                       </div>
@@ -100,7 +95,7 @@ export function TripList() {
           </div>
         )}
       </main>
-      <button onClick={openCreate} className="fixed bottom-10 right-5 z-20 h-14 w-14 rounded-full bg-brand-600 text-white shadow-lg flex items-center justify-center">
+      <button onClick={() => { setEditingId(null); setModalOpen(true); }} className="fixed bottom-10 right-5 z-20 h-14 w-14 rounded-full bg-brand-600 text-white shadow-lg flex items-center justify-center">
         <IconPlus className="h-7 w-7" />
       </button>
       {modalOpen && (
