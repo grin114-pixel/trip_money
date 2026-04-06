@@ -101,7 +101,7 @@ export function TripList() {
               fontWeight: 700,
             }}
           >
-            <span style={{ fontSize: '14px' }}>{group.year}</span>
+            <span style={{ fontSize: '18px' }}>{group.year}</span>
             <div style={{ height: '1px', background: '#e5e7eb', flex: 1 }} />
           </div>
 
@@ -137,12 +137,31 @@ export function TripList() {
                 >
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontWeight: 800, fontSize: '15px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <div
+                        style={{
+                          fontWeight: 900,
+                          fontSize: '15px',
+                          color: '#2563eb',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          lineHeight: 1.2,
+                        }}
+                      >
                         {trip.name}
                       </div>
                       <div style={{ color: '#888', fontSize: '12px', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {trip.endDate ? `${trip.startDate} ~ ${trip.endDate}` : trip.startDate}
                       </div>
+                    </div>
+
+                  </div>
+
+                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                    <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 800 }}>
+                      {total.toLocaleString()}원
                     </div>
 
                     <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
@@ -155,8 +174,8 @@ export function TripList() {
                           openEdit(trip)
                         }}
                         style={{
-                          width: '28px',
-                          height: '28px',
+                          width: '26px',
+                          height: '26px',
                           borderRadius: '9px',
                           border: '1px solid #eee',
                           background: '#fff',
@@ -167,7 +186,7 @@ export function TripList() {
                           touchAction: 'manipulation',
                         }}
                       >
-                        <IconPencil width={14} height={14} />
+                        <IconPencil width={13} height={13} />
                       </button>
 
                       <button
@@ -179,8 +198,8 @@ export function TripList() {
                           void handleDeleteTrip(trip)
                         }}
                         style={{
-                          width: '28px',
-                          height: '28px',
+                          width: '26px',
+                          height: '26px',
                           borderRadius: '9px',
                           border: '1px solid #eee',
                           background: '#fff',
@@ -191,13 +210,9 @@ export function TripList() {
                           touchAction: 'manipulation',
                         }}
                       >
-                        <IconTrash width={14} height={14} />
+                        <IconTrash width={13} height={13} />
                       </button>
                     </div>
-                  </div>
-
-                  <div style={{ marginTop: '8px', fontSize: '12px', color: '#2563eb', fontWeight: 800 }}>
-                    {total.toLocaleString()}원
                   </div>
                 </button>
               )

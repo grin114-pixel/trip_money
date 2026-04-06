@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 interface Props {
   mode: 'create' | 'edit'
@@ -17,6 +17,11 @@ export function TripModal({
 }: Props) {
   const [name, setName] = useState(initialName)
   const [tripDate, setTripDate] = useState(initialTripDate)
+  const dateRef = useRef<HTMLInputElement | null>(null)
+
+  const trySubmit = () => {
+    onSave({ name, startDate: tripDate, endDate: '' })
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -32,6 +37,11 @@ export function TripModal({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== 'Enter') return
+                e.preventDefault()
+                dateRef.current?.focus()
+              }}
               className="mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               placeholder="예: 제주도 여행"
             />
@@ -43,6 +53,12 @@ export function TripModal({
               type="text"
               value={tripDate}
               onChange={(e) => setTripDate(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== 'Enter') return
+                e.preventDefault()
+                trySubmit()
+              }}
+              ref={dateRef}
               className="mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               placeholder="예: 2026.04.06 / 4/6~4/8 / 4월 첫째주"
             />
@@ -52,7 +68,7 @@ export function TripModal({
         <div className="mt-6 flex gap-2">
           <button onClick={onClose} className="flex-1 rounded-lg bg-slate-100 py-2 text-sm font-medium text-slate-600">취소</button>
           <button 
-            onClick={() => onSave({ name, startDate: tripDate, endDate: '' })}
+            onClick={trySubmit}
             className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white shadow-md active:scale-95"
           >
             저장하기
