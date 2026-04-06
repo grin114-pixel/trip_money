@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#2563eb"/>
+  <path fill="#fff" d="M128 288h256v48H128zm32-96 48-80h96l48 80zm48 32h80v32h-80z"/>
+  <text x="256" y="400" text-anchor="middle" fill="#fff" font-size="120" font-family="system-ui,sans-serif" font-weight="700">�</text>
+</svg>
