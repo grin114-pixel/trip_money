@@ -123,12 +123,9 @@ export function TripDetail() {
       </header>
 
       <main className="px-0 py-0">
-        <div className="excel-sheet w-full overflow-x-auto">
-          <div
-            className="min-w-[520px] border-b border-slate-200"
-            style={{ borderTop: '1px solid rgb(226 232 240)' }}
-          >
-            <div className="grid grid-cols-[88px_1fr_140px_60px_44px] bg-[#f6edd6] text-xs font-semibold text-slate-700">
+        <div className="excel-sheet w-full overflow-hidden">
+          <div className="w-full border-b border-slate-200" style={{ borderTop: '1px solid rgb(226 232 240)' }}>
+            <div className="grid grid-cols-[64px_1fr_96px_44px_36px] bg-[#f6edd6] text-xs font-semibold text-slate-700 sm:grid-cols-[76px_1fr_120px_56px_44px]">
               <div className="border-r border-slate-200 px-2 py-2 text-center">날짜</div>
               <div className="border-r border-slate-200 px-2 py-2 text-center">내역</div>
               <div className="border-r border-slate-200 px-2 py-2 text-center">금액</div>
@@ -143,14 +140,14 @@ export function TripDetail() {
               {rows.map((r) => (
                 <div
                   key={r.id}
-                  className="grid grid-cols-[88px_1fr_140px_60px_44px] items-stretch border-t border-slate-200"
+                  className="grid grid-cols-[64px_1fr_96px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[76px_1fr_120px_56px_44px]"
                 >
                   <div className="border-r border-slate-200">
                     <input
                       value={r.date ?? ''}
                       onChange={(e) => upsertRow(r.id, { date: e.target.value })}
                       placeholder="2/22"
-                      className="h-10 w-full bg-transparent px-2 text-sm outline-none"
+                      className="h-10 w-full bg-transparent px-1 text-sm outline-none sm:px-2"
                       inputMode="text"
                     />
                   </div>
@@ -170,7 +167,7 @@ export function TripDetail() {
                         upsertRow(r.id, { amount: v === '' ? 0 : Number(v) })
                       }}
                       placeholder="0"
-                      className="h-10 w-full bg-transparent px-2 text-right text-sm outline-none"
+                      className="h-10 w-full bg-transparent px-1 text-right text-sm outline-none sm:px-2"
                       inputMode="numeric"
                     />
                   </div>
@@ -196,7 +193,7 @@ export function TripDetail() {
             </div>
           )}
 
-          <div className="grid grid-cols-[88px_1fr_140px_60px_44px] items-stretch border-t border-slate-200">
+          <div className="grid grid-cols-[64px_1fr_96px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[76px_1fr_120px_56px_44px]">
             <div className="border-r border-slate-200" />
             <div className="border-r border-slate-200" />
             <div className="border-r border-slate-200 bg-yellow-300 px-2 py-2 text-right text-base font-bold text-slate-900">
