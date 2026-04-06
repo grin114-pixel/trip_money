@@ -143,11 +143,11 @@ export function TripDetail() {
         <div className="excel-sheet w-full overflow-hidden">
           <div className="w-full border-b border-slate-200" style={{ borderTop: '1px solid rgb(226 232 240)' }}>
             <div className="grid grid-cols-[56px_1fr_88px_44px_36px] bg-[#f6edd6] text-xs font-semibold text-slate-700 sm:grid-cols-[68px_1fr_110px_56px_44px]">
-              <div className="border-r border-slate-200 px-2 py-1.5 text-center">날짜</div>
-              <div className="border-r border-slate-200 px-2 py-1.5 text-center">내역</div>
-              <div className="border-r border-slate-200 px-2 py-1.5 text-center">금액</div>
-              <div className="border-r border-slate-200 px-2 py-1.5 text-center">메모</div>
-              <div className="px-2 py-1.5 text-center" />
+              <div className="border-r border-slate-200 px-2 py-1 text-center">날짜</div>
+              <div className="border-r border-slate-200 px-2 py-1 text-center">내역</div>
+              <div className="border-r border-slate-200 px-2 py-1 text-center">금액</div>
+              <div className="border-r border-slate-200 px-2 py-1 text-center">메모</div>
+              <div className="px-2 py-1 text-center" />
             </div>
 
           {rows.length === 0 ? (
@@ -166,7 +166,7 @@ export function TripDetail() {
                       onChange={(e) => upsertRow(r.id, { date: e.target.value })}
                       data-col="date"
                       onKeyDown={handleEnterMoveDown}
-                      className="h-9 w-full bg-transparent px-1 text-center text-sm outline-none sm:px-2"
+                      className="h-8 w-full bg-transparent px-1 text-center text-sm outline-none sm:px-2"
                       inputMode="text"
                     />
                   </div>
@@ -177,7 +177,7 @@ export function TripDetail() {
                       placeholder="내역"
                       data-col="content"
                       onKeyDown={handleEnterMoveDown}
-                      className="h-9 w-full bg-transparent px-2 text-sm outline-none"
+                      className="h-8 w-full bg-transparent px-2 text-sm outline-none"
                     />
                   </div>
                   <div className="border-r border-slate-200">
@@ -190,7 +190,7 @@ export function TripDetail() {
                       placeholder="0"
                       data-col="amount"
                       onKeyDown={handleEnterMoveDown}
-                      className="h-9 w-full bg-transparent px-1 text-right text-sm outline-none sm:px-2"
+                      className="h-8 w-full bg-transparent px-1 text-right text-sm outline-none sm:px-2"
                       inputMode="numeric"
                     />
                   </div>
@@ -202,14 +202,14 @@ export function TripDetail() {
                       maxLength={3}
                       data-col="memo"
                       onKeyDown={handleEnterMoveDown}
-                      className="h-9 w-full bg-transparent px-1 text-center text-sm outline-none"
+                      className="h-8 w-full bg-transparent px-1 text-center text-sm outline-none"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => handleDeleteExpense(r.id)}
                     aria-label="행 삭제"
-                    className="inline-flex h-9 w-full items-center justify-center text-slate-300 hover:text-slate-500 active:bg-slate-100"
+                    className="inline-flex h-8 w-full items-center justify-center text-slate-300 hover:text-slate-500 active:bg-slate-100"
                   >
                     <IconTrash className="h-4 w-4" />
                   </button>
@@ -228,27 +228,29 @@ export function TripDetail() {
             <div />
           </div>
         </div>
+          <div className="sticky bottom-0 z-20 border-t border-slate-200 bg-white">
+            <div className="flex items-center justify-end gap-2 px-3 py-2">
+              <button
+                type="button"
+                onClick={() => addRows(1)}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow active:scale-[0.99]"
+              >
+                <IconPlus className="h-5 w-5" />
+                1줄 추가
+              </button>
+              <button
+                type="button"
+                onClick={() => addRows(5)}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow active:scale-[0.99]"
+              >
+                <IconPlus className="h-5 w-5" />
+                5줄 추가
+              </button>
+            </div>
+          </div>
         </div>
       </main>
 
-      <div className="fixed bottom-6 right-4 z-40 flex flex-col gap-2">
-        <button
-          type="button"
-          onClick={() => addRows(1)}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-lg active:scale-[0.99]"
-        >
-          <IconPlus className="h-5 w-5" />
-          1줄 추가
-        </button>
-        <button
-          type="button"
-          onClick={() => addRows(5)}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-lg active:scale-[0.99]"
-        >
-          <IconPlus className="h-5 w-5" />
-          5줄 추가
-        </button>
-      </div>
     </div>
   )
 }
