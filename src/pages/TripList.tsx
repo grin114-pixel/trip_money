@@ -87,10 +87,10 @@ export function TripList() {
 
   return (
     <div style={{ padding: '20px', paddingBottom: '100px' }}>
-      <h2 style={{ marginBottom: '20px' }}>✈️ 나의 여행 목록</h2>
+      <h2 style={{ marginBottom: '20px' }}>✈️ 우리 가족 여행</h2>
       {grouped.map((group) => (
         <React.Fragment key={group.year}>
-        <div style={{ marginBottom: '26px' }}>
+        <div style={{ marginBottom: '36px' }}>
           <div
             style={{
               display: 'flex',
