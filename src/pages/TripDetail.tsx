@@ -221,7 +221,7 @@ export function TripDetail() {
             </div>
           )}
 
-          <div className="grid grid-cols-[56px_1fr_76px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[68px_1fr_96px_56px_44px]">
+          <div className="grid grid-cols-[56px_1fr_76px_44px_36px] items-stretch border-t border-slate-200 bg-[#e0f2fe] sm:grid-cols-[68px_1fr_96px_56px_44px]">
             <div className="border-r border-slate-200" />
             <div className="border-r border-slate-200 px-2 py-2 text-sm font-bold text-slate-900">총액</div>
             <div className="border-r border-slate-200 px-2 py-2 text-right text-sm font-bold text-slate-900">
@@ -231,12 +231,12 @@ export function TripDetail() {
             <div />
           </div>
         </div>
-          <div className="sticky bottom-0 z-20 border-t border-slate-200 bg-white">
-            <div className="flex items-center justify-end gap-2 px-3 py-2">
+          <div className="sticky bottom-0 z-20 mt-4 border-t border-slate-200 bg-white pt-3">
+            <div className="flex items-center justify-end gap-2 px-3 pb-2">
               <button
                 type="button"
                 onClick={() => addRows(1)}
-                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#e0f2fe] px-3 py-1.5 text-xs font-semibold text-slate-900 shadow active:scale-[0.99]"
+                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#d9f5d1] px-3 py-1.5 text-xs font-semibold text-slate-800 shadow active:scale-[0.99]"
               >
                 <IconPlus className="h-4 w-4" />
                 1줄 추가
@@ -244,7 +244,7 @@ export function TripDetail() {
               <button
                 type="button"
                 onClick={() => addRows(5)}
-                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#e0f2fe] px-3 py-1.5 text-xs font-semibold text-slate-900 shadow active:scale-[0.99]"
+                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#d9f5d1] px-3 py-1.5 text-xs font-semibold text-slate-800 shadow active:scale-[0.99]"
               >
                 <IconPlus className="h-4 w-4" />
                 5줄 추가

@@ -162,11 +162,11 @@ export function TripList() {
                   </div>
 
                   <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                    <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 800 }}>
+                    <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 800, minWidth: 0, flex: 1, whiteSpace: 'nowrap' }}>
                       {total.toLocaleString()}원
                     </div>
 
-                    <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flexShrink: 0 }}>
                       <button
                         type="button"
                         aria-label="여행 수정"
