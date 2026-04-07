@@ -231,7 +231,7 @@ export function TripDetail() {
             <div />
           </div>
         </div>
-          <div className="sticky bottom-0 z-20 mt-4 border-t border-slate-200 bg-white pt-3">
+          <div className="sticky bottom-0 z-20 mt-4 bg-white pt-3">
             <div className="flex items-center justify-end gap-2 px-3 pb-2">
               <button
                 type="button"

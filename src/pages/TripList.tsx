@@ -137,36 +137,44 @@ export function TripList() {
                     WebkitUserSelect: 'none',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
-                    <div style={{ minWidth: 0 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontWeight: 900,
+                        fontSize: '15px',
+                        color: '#111827',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {trip.name}
+                    </div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '6px',
+                        marginTop: '2px',
+                      }}
+                    >
                       <div
                         style={{
-                          fontWeight: 900,
-                          fontSize: '15px',
-                          color: '#111827',
+                          color: '#888',
+                          fontSize: '12px',
+                          minWidth: 0,
+                          flex: 1,
+                          whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          lineHeight: 1.2,
                         }}
                       >
-                        {trip.name}
-                      </div>
-                      <div style={{ color: '#888', fontSize: '12px', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {trip.endDate ? `${trip.startDate} ~ ${trip.endDate}` : trip.startDate}
                       </div>
-                    </div>
-
-                  </div>
-
-                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                    <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 800, minWidth: 0, flex: 1, whiteSpace: 'nowrap' }}>
-                      {total.toLocaleString()}원
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flexShrink: 0 }}>
                       <button
                         type="button"
                         aria-label="여행 수정"
@@ -185,36 +193,43 @@ export function TripList() {
                           display: 'inline-flex',
                           alignItems: 'center',
                           justifyContent: 'center',
+                          flexShrink: 0,
                           touchAction: 'manipulation',
                         }}
                       >
                         <IconPencil width={13} height={13} />
                       </button>
-
-                      <button
-                        type="button"
-                        aria-label="여행 삭제"
-                        onPointerUp={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          void handleDeleteTrip(trip)
-                        }}
-                        style={{
-                          width: '26px',
-                          height: '26px',
-                          borderRadius: '9px',
-                          border: '1px solid #eee',
-                          background: '#fff',
-                          color: '#d33',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          touchAction: 'manipulation',
-                        }}
-                      >
-                        <IconTrash width={13} height={13} />
-                      </button>
                     </div>
+                  </div>
+
+                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                    <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 800 }}>
+                      {total.toLocaleString()}원
+                    </div>
+                    <button
+                      type="button"
+                      aria-label="여행 삭제"
+                      onPointerUp={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        void handleDeleteTrip(trip)
+                      }}
+                      style={{
+                        width: '26px',
+                        height: '26px',
+                        borderRadius: '9px',
+                        border: '1px solid #eee',
+                        background: '#fff',
+                        color: '#d33',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        touchAction: 'manipulation',
+                      }}
+                    >
+                      <IconTrash width={13} height={13} />
+                    </button>
                   </div>
                 </button>
               )
