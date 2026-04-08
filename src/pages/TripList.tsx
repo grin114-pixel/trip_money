@@ -87,7 +87,15 @@ export function TripList() {
 
   return (
     <div style={{ padding: '20px', paddingBottom: '100px' }}>
-      <h2 style={{ marginBottom: '20px' }}>✈️ 우리 가족 여행</h2>
+      <h2
+        style={{
+          marginBottom: '20px',
+          fontSize: 'calc(28px * 0.7)',
+          fontWeight: 700,
+        }}
+      >
+        ✈️ 우리 가족 여행
+      </h2>
       {grouped.map((group) => (
         <React.Fragment key={group.year}>
         <div style={{ marginBottom: '36px' }}>
@@ -117,10 +125,18 @@ export function TripList() {
             {group.trips.map((trip) => {
               const total = sumTripAmount(trip)
               return (
-                <button
+                <div
                   key={trip.id}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${trip.name} 여행 열기`}
                   onPointerUp={() => navigate(`/trip/${trip.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      navigate(`/trip/${trip.id}`)
+                    }
+                  }}
                   style={{
                     display: 'block',
                     width: '100%',
@@ -231,7 +247,7 @@ export function TripList() {
                       <IconTrash width={13} height={13} />
                     </button>
                   </div>
-                </button>
+                </div>
               )
             })}
           </div>
