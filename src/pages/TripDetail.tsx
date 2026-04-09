@@ -131,19 +131,18 @@ export function TripDetail() {
           type="button"
           onClick={() => navigate('/')}
           aria-label="여행 목록으로"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 text-slate-700 active:bg-slate-100"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/70 text-slate-700 active:bg-white"
         >
           <IconChevronLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-bold text-slate-800">{trip.name}</h1>
+        <h1 className="text-lg font-extrabold text-[#2563eb]">{trip.name}</h1>
         <div className="ml-auto text-xs text-slate-400">{saving ? '저장 중…' : '자동 저장'}</div>
       </header>
 
       <main className="px-2 py-0">
         <div className="excel-sheet w-full overflow-hidden">
           <div
-            className="w-full border-x border-b border-slate-200"
-            style={{ borderTop: '1px solid rgb(226 232 240)' }}
+            className="w-full border-b border-slate-200"
           >
             <div className="grid grid-cols-[56px_1fr_76px_44px_36px] bg-[#e0f2fe] text-xs font-semibold text-slate-700 sm:grid-cols-[68px_1fr_96px_56px_44px]">
               <div className="border-r border-slate-200 px-2 py-1 text-center">날짜</div>
@@ -157,11 +156,11 @@ export function TripDetail() {
             <div className="p-6 text-center text-sm text-slate-400">행을 추가해서 입력해 주세요.</div>
           ) : (
             <div>
-              {rows.map((r) => (
+              {rows.map((r, idx) => (
                 <div
                   key={r.id}
                   data-row
-                  className="grid grid-cols-[56px_1fr_76px_44px_36px] items-stretch border-t border-slate-200 sm:grid-cols-[68px_1fr_96px_56px_44px]"
+                  className={`grid grid-cols-[56px_1fr_76px_44px_36px] items-stretch sm:grid-cols-[68px_1fr_96px_56px_44px] ${idx === 0 ? '' : 'border-t border-slate-200'}`}
                 >
                   <div className="border-r border-slate-200">
                     <input
@@ -231,12 +230,12 @@ export function TripDetail() {
             <div />
           </div>
         </div>
-          <div className="sticky bottom-0 z-20 mt-4 border-t border-slate-200 bg-white/80 pt-3 backdrop-blur">
+          <div className="sticky bottom-0 z-20 mt-2 bg-white/80 pt-2 backdrop-blur">
             <div className="flex items-center justify-end gap-2 px-3 pb-2">
               <button
                 type="button"
                 onClick={() => addRows(1)}
-                className="inline-flex items-center justify-center gap-1 rounded-full bg-sky-200 px-3 py-1.5 text-xs font-bold text-sky-950 shadow-sm transition hover:bg-sky-300 active:scale-[0.99]"
+                className="inline-flex items-center justify-center gap-1 rounded-full bg-sky-200 px-3 py-1.5 text-xs font-bold text-indigo-950 shadow-sm transition hover:bg-sky-300 active:scale-[0.99]"
               >
                 <IconPlus className="h-4 w-4" />
                 1줄 추가
@@ -244,7 +243,7 @@ export function TripDetail() {
               <button
                 type="button"
                 onClick={() => addRows(5)}
-                className="inline-flex items-center justify-center gap-1 rounded-full bg-sky-200 px-3 py-1.5 text-xs font-bold text-sky-950 shadow-sm transition hover:bg-sky-300 active:scale-[0.99]"
+                className="inline-flex items-center justify-center gap-1 rounded-full bg-sky-200 px-3 py-1.5 text-xs font-bold text-indigo-950 shadow-sm transition hover:bg-sky-300 active:scale-[0.99]"
               >
                 <IconPlus className="h-4 w-4" />
                 5줄 추가

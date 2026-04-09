@@ -91,7 +91,7 @@ export function TripList() {
         padding: '20px',
         paddingBottom: '100px',
         minHeight: '100vh',
-        background: 'linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 55%, #ffffff 100%)',
+        background: '#e0f2fe',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
@@ -115,9 +115,9 @@ export function TripList() {
         <h2
           style={{
             margin: 0,
-            fontSize: 'calc(28px * 0.7)',
+            fontSize: 'calc(28px * 0.7 * 1.1)',
             fontWeight: 800,
-            color: '#0f172a',
+            color: '#1e40af',
           }}
         >
           우리 가족 여행
@@ -139,7 +139,14 @@ export function TripList() {
             <span style={{ fontSize: '18px', color: '#2563eb' }}>
               {group.year}년
             </span>
-            <div style={{ height: '1px', background: '#e5e7eb', flex: 1 }} />
+            <div
+              style={{
+                height: '1px',
+                background: '#2563eb',
+                flex: 1,
+                borderRadius: '999px',
+              }}
+            />
           </div>
 
           <div
