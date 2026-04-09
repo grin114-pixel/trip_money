@@ -86,16 +86,43 @@ export function TripList() {
   }
 
   return (
-    <div style={{ padding: '20px', paddingBottom: '100px' }}>
-      <h2
-        style={{
-          marginBottom: '20px',
-          fontSize: 'calc(28px * 0.7)',
-          fontWeight: 700,
-        }}
-      >
-        ✈️ 우리 가족 여행
-      </h2>
+    <div
+      style={{
+        padding: '20px',
+        paddingBottom: '100px',
+        minHeight: '100vh',
+        background: 'linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 55%, #ffffff 100%)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+        <span
+          aria-hidden
+          style={{
+            width: '44px',
+            height: '44px',
+            borderRadius: '14px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(2, 132, 199, 0.12)',
+            border: '1px solid rgba(2, 132, 199, 0.22)',
+            color: '#0284c7',
+            flexShrink: 0,
+          }}
+        >
+          ✈️
+        </span>
+        <h2
+          style={{
+            margin: 0,
+            fontSize: 'calc(28px * 0.7)',
+            fontWeight: 800,
+            color: '#0f172a',
+          }}
+        >
+          우리 가족 여행
+        </h2>
+      </div>
       {grouped.map((group) => (
         <React.Fragment key={group.year}>
         <div style={{ marginBottom: '36px' }}>

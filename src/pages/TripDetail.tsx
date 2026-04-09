@@ -231,12 +231,12 @@ export function TripDetail() {
             <div />
           </div>
         </div>
-          <div className="sticky bottom-0 z-20 mt-4 bg-white pt-3">
+          <div className="sticky bottom-0 z-20 mt-4 border-t border-slate-200 bg-white/80 pt-3 backdrop-blur">
             <div className="flex items-center justify-end gap-2 px-3 pb-2">
               <button
                 type="button"
                 onClick={() => addRows(1)}
-                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#d9f5d1] px-3 py-1.5 text-xs font-semibold text-slate-800 shadow active:scale-[0.99]"
+                className="inline-flex items-center justify-center gap-1 rounded-full bg-sky-200 px-3 py-1.5 text-xs font-bold text-sky-950 shadow-sm transition hover:bg-sky-300 active:scale-[0.99]"
               >
                 <IconPlus className="h-4 w-4" />
                 1줄 추가
@@ -244,7 +244,7 @@ export function TripDetail() {
               <button
                 type="button"
                 onClick={() => addRows(5)}
-                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#d9f5d1] px-3 py-1.5 text-xs font-semibold text-slate-800 shadow active:scale-[0.99]"
+                className="inline-flex items-center justify-center gap-1 rounded-full bg-sky-200 px-3 py-1.5 text-xs font-bold text-sky-950 shadow-sm transition hover:bg-sky-300 active:scale-[0.99]"
               >
                 <IconPlus className="h-4 w-4" />
                 5줄 추가
