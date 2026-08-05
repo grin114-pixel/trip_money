@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TripModal } from '../components/TripModal'
+import { AppHeader } from '../components/AppHeader'
 import { IconPencil, IconTrash } from '../components/Icons'
 import { useTrips } from '../trips/useTrips'
 import { supabase } from '../supabase'
@@ -88,40 +89,13 @@ export function TripList() {
   return (
     <div
       style={{
-        padding: '20px',
-        paddingBottom: '100px',
+        padding: '0 20px 100px',
         minHeight: '100vh',
         background: '#e0f2fe',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-        <span
-          aria-hidden
-          style={{
-            width: '44px',
-            height: '44px',
-            borderRadius: '14px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(2, 132, 199, 0.12)',
-            border: '1px solid rgba(2, 132, 199, 0.22)',
-            color: '#0284c7',
-            flexShrink: 0,
-          }}
-        >
-          ✈️
-        </span>
-        <h2
-          style={{
-            margin: 0,
-            fontSize: 'calc(28px * 0.7 * 1.1)',
-            fontWeight: 800,
-            color: '#1e40af',
-          }}
-        >
-          우리 가족 여행
-        </h2>
+      <div style={{ margin: '0 -20px 8px' }}>
+        <AppHeader />
       </div>
       {grouped.map((group) => (
         <React.Fragment key={group.year}>
@@ -152,7 +126,7 @@ export function TripList() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+              gridTemplateColumns: '1fr',
               gap: '10px',
             }}
           >
@@ -187,37 +161,33 @@ export function TripList() {
                     WebkitUserSelect: 'none',
                   }}
                 >
-                  <div style={{ minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontWeight: 900,
-                        fontSize: '15px',
-                        color: '#111827',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      {trip.name}
-                    </div>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '6px',
-                        marginTop: '2px',
-                      }}
-                    >
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr auto 1fr',
+                      alignItems: 'center',
+                      columnGap: '10px',
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontWeight: 900,
+                          fontSize: '15px',
+                          color: '#111827',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        {trip.name}
+                      </div>
                       <div
                         style={{
                           color: '#888',
                           fontSize: '12px',
-                          minWidth: 0,
-                          flex: 1,
+                          marginTop: '6px',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -225,6 +195,29 @@ export function TripList() {
                       >
                         {trip.endDate ? `${trip.startDate} ~ ${trip.endDate}` : trip.startDate}
                       </div>
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: '15px',
+                        color: '#6b7280',
+                        fontWeight: 800,
+                        whiteSpace: 'nowrap',
+                        textAlign: 'center',
+                        justifySelf: 'center',
+                      }}
+                    >
+                      {total.toLocaleString()}원
+                    </div>
+
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        justifySelf: 'end',
+                      }}
+                    >
                       <button
                         type="button"
                         aria-label="여행 수정"
@@ -243,43 +236,35 @@ export function TripList() {
                           display: 'inline-flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          flexShrink: 0,
                           touchAction: 'manipulation',
                         }}
                       >
                         <IconPencil width={13} height={13} />
                       </button>
+                      <button
+                        type="button"
+                        aria-label="여행 삭제"
+                        onPointerUp={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          void handleDeleteTrip(trip)
+                        }}
+                        style={{
+                          width: '26px',
+                          height: '26px',
+                          borderRadius: '9px',
+                          border: '1px solid #eee',
+                          background: '#fff',
+                          color: '#d33',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          touchAction: 'manipulation',
+                        }}
+                      >
+                        <IconTrash width={13} height={13} />
+                      </button>
                     </div>
-                  </div>
-
-                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                    <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 800 }}>
-                      {total.toLocaleString()}원
-                    </div>
-                    <button
-                      type="button"
-                      aria-label="여행 삭제"
-                      onPointerUp={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        void handleDeleteTrip(trip)
-                      }}
-                      style={{
-                        width: '26px',
-                        height: '26px',
-                        borderRadius: '9px',
-                        border: '1px solid #eee',
-                        background: '#fff',
-                        color: '#d33',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                        touchAction: 'manipulation',
-                      }}
-                    >
-                      <IconTrash width={13} height={13} />
-                    </button>
                   </div>
                 </div>
               )

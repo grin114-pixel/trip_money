@@ -44,11 +44,16 @@ select {
   }
 }
 
-/* 경비 내역 엑셀 표: 촘촘한 12px 유지 (전역 16px 줌 방지 규칙보다 우선) */
-.excel-sheet input,
-.excel-sheet textarea,
-.excel-sheet th,
-.excel-sheet td {
-  font-size: 12px;
+/* 경비 내역 표: 촘촘한 입력도 모바일 줌 방지보다 우선 */
+.expense-sheet input,
+.expense-sheet textarea {
+  font-size: 13px;
+}
+
+@media (min-width: 640px) {
+  .expense-sheet input,
+  .expense-sheet textarea {
+    font-size: 14px;
+  }
 }
 
